@@ -1,0 +1,77 @@
+package com.example.mealmaster.Adapter;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import androidx.cardview.widget.CardView;
+
+import com.example.mealmaster.Listeners.RecipeClickListener;
+import com.example.mealmaster.model.Recipe;
+import com.example.mealmaster.R;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.smarteist.autoimageslider.SliderViewAdapter;
+import com.squareup.picasso.Picasso;
+
+import java.util.List;
+
+public class RandomSliderAdapter extends SliderViewAdapter<SliderAdapterVH> {
+
+    Context context;
+    List<Recipe> list;
+    RecipeClickListener listener;
+
+    public RandomSliderAdapter(Context context, List<Recipe> list, RecipeClickListener listener) {
+        this.context = context;
+        this.list = list;
+        this.listener = listener;
+    }
+
+    @Override
+    public SliderAdapterVH onCreateViewHolder(ViewGroup parent) {
+
+        View inflate = LayoutInflater.from(parent.getContext()).inflate(R.layout.slider_item, parent, false);
+
+        return new SliderAdapterVH(inflate);
+    }
+
+    @Override
+    public void onBindViewHolder(SliderAdapterVH viewHolder, int position) {
+
+        viewHolder.DishName_title.setText(list.get(position).getTitle());
+        viewHolder.DishName_title.setSelected(true);
+        Picasso.get().load(list.get(position).getImage()).into(viewHolder.image_food);
+
+        viewHolder.random_list_container.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                listener.OnRecipeClicked(String.valueOf(list.get(position).getId()));
+            }
+        });
+
+    }
+
+    @Override
+    public int getCount() {
+        return list.size();
+    }
+}
+
+class SliderAdapterVH extends SliderViewAdapter.ViewHolder{
+    CardView random_list_container;
+    TextView DishName_title;
+    ImageView image_food;
+    ImageView btn_like;
+
+    public SliderAdapterVH(View itemView) {
+        super(itemView);
+        random_list_container = itemView.findViewById(R.id.random_list_container);
+        DishName_title = itemView.findViewById(R.id.DishName_title);
+        image_food = itemView.findViewById(R.id.image_food);
+        btn_like = itemView.findViewById(R.id.btn_like);
+    }
+}
+

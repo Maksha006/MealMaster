@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragment.HomeFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/whatEat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:fontFamily="@font/candal"
+        android:text="@string/home_blank_fragment"
+        android:textAlignment="center"
+        android:textColor="@color/orange"
+        android:textSize="17sp"
+        app:layout_constraintBottom_toTopOf="@+id/image_slider"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.smarteist.autoimageslider.SliderView
+        android:id="@+id/image_slider"
+        android:layout_width="393dp"
+        android:layout_height="192dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="24dp"
+        app:layout_constraintBottom_toTopOf="@+id/FavoriteRecipes"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/whatEat"
+        app:sliderAnimationDuration="600"
+        app:sliderAutoCycleDirection="back_and_forth"
+        app:sliderAutoCycleEnabled="true"
+        app:sliderIndicatorAnimationDuration="600"
+        app:sliderIndicatorGravity="center_horizontal|bottom"
+        app:sliderIndicatorMargin="15dp"
+        app:sliderIndicatorOrientation="horizontal"
+        app:sliderIndicatorPadding="3dp"
+        app:sliderIndicatorRadius="2dp"
+        app:sliderIndicatorSelectedColor="#5A5A5A"
+        app:sliderIndicatorUnselectedColor="#FFF"
+        app:sliderScrollTimeInSec="2"
+        app:sliderStartAutoCycle="true" />
+
+    <TextView
+        android:id="@+id/FavoriteRecipes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="45dp"
+        android:fontFamily="@font/candal"
+        android:text="What is your favorite recipes ?"
+        android:textAlignment="center"
+        android:textColor="@color/orange"
+        android:textSize="17sp"
+        app:layout_constraintBottom_toTopOf="@+id/gridLayout"
+        app:layout_constraintTop_toBottomOf="@+id/image_slider"
+        tools:layout_editor_absoluteX="16dp" />
+
+    <GridLayout
+        android:id="@+id/gridLayout"
+        android:layout_width="match_parent"
+        android:layout_height="225dp"
+        android:layout_alignParentTop="true"
+        android:layout_gravity="center"
+        android:layout_margin="2dp"
+        android:layout_marginTop="90dp"
+        android:columnCount="2"
+        android:rowCount="1"
+        app:layout_constraintTop_toBottomOf="@+id/FavoriteRecipes"
+        tools:layout_editor_absoluteX="2dp">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/firstrecipe"
+            android:layout_width="5dp"
+            android:layout_height="15dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_margin="2dp"
+            app:cardCornerRadius="15dp"
+            app:cardElevation="0dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/mealmaster" />
+
+            <SeekBar
+                android:id="@+id/seek_bar1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="195dp"
+                android:max="100"
+                android:progress="0"
+                android:progressDrawable="@drawable/progress_track"
+                android:thumb="@android:color/transparent" />
+
+            <TextView
+                android:id="@+id/option1"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="195dp"
+                android:gravity="center_vertical"
+                android:paddingStart="3dp"
+                android:paddingEnd="0dp"
+                android:text="pizza1" />
+
+            <TextView
+                android:id="@+id/percent1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="160dp"
+                android:layout_marginTop="200dp"
+                android:gravity="center_vertical"
+                android:paddingStart="0dp"
+                android:paddingEnd="10dp"
+                android:text="0%" />
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/secondrecipe"
+            android:layout_width="5dp"
+            android:layout_height="7dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_margin="2dp"
+            app:cardCornerRadius="15dp"
+            app:cardElevation="0dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/mealmaster" />
+
+            <SeekBar
+                android:id="@+id/seek_bar2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="195dp"
+                android:max="100"
+                android:progress="0"
+                android:progressDrawable="@drawable/progress_track"
+                android:thumb="@android:color/transparent" />
+
+            <TextView
+                android:id="@+id/option2"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="195dp"
+                android:gravity="center_vertical"
+                android:paddingStart="2dp"
+                android:paddingEnd="0dp"
+                android:text="pizza2" />
+
+            <TextView
+                android:id="@+id/percent2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="160dp"
+                android:layout_marginTop="200dp"
+                android:gravity="center_vertical"
+                android:paddingStart="0dp"
+                android:paddingEnd="10dp"
+                android:text="0%" />
+        </androidx.cardview.widget.CardView>
+    </GridLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

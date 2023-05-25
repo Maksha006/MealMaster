@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "105371622719",
+    "firebase_url": "https://mealmaster-92248-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "mealmaster-92248",
+    "storage_bucket": "mealmaster-92248.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:105371622719:android:ba643e6bef6698e9d6478a",
+        "android_client_info": {
+          "package_name": "com.example.mealmaster"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "105371622719-l86dldn5o9gas9221vhrcphoiqnog2gf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_pNagZX1j9YoqCyIJb8lHBl6fTLJ8_2U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "105371622719-l86dldn5o9gas9221vhrcphoiqnog2gf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
