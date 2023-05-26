@@ -1,5 +1,6 @@
 package com.example.mealmaster;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,6 +20,12 @@ import com.example.mealmaster.Listeners.RecipeDetailsListener;
 import com.example.mealmaster.fragment.HomeFragment;
 import com.example.mealmaster.model.RecipeDetailsResponses;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 public class RecipesDetails extends AppCompatActivity {
@@ -33,7 +40,6 @@ public class RecipesDetails extends AppCompatActivity {
     IngredientsAdapter ingredientsAdapter;
 
     RecipeDetailsResponses response;
-
     ImageView btnback;
 
     @Override
@@ -71,8 +77,6 @@ public class RecipesDetails extends AppCompatActivity {
         im_meal_image = findViewById(R.id.meal_image);
         recycler_meal_ingredients = findViewById(R.id.meal_ingredients);
     }
-
-
 
     private final RecipeDetailsListener recipeDetailsListener = new RecipeDetailsListener() {
         @Override

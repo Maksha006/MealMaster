@@ -6,12 +6,55 @@
     tools:context=".fragment.FavoriteFragment">
 
     <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/favorite_blank_fragment"
-        android:gravity="center"
-        android:textSize="30sp"
-        android:textColor="@color/orange"/>
+        android:layout_height="wrap_content"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        app:cardBackgroundColor="@color/white"
+        app:cardElevation="8dp"
+        android:layout_margin="8dp"
+        android:id="@+id/random_list_container">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/DishName_title"
+                android:text="Dish Name"
+                android:singleLine="true"
+                android:ellipsize="marquee"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:scrollHorizontally="true"
+                android:textStyle="bold"
+                android:textColor="@color/butter"
+                android:textSize="22dp"
+                android:padding="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <ImageView
+                android:id="@+id/image_food"
+                android:layout_width="387dp"
+                android:layout_height="200dp"
+                android:layout_below="@+id/DishName_title"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:scaleType="centerCrop" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/btn_like"
+                android:layout_width="38dp"
+                android:layout_height="35dp"
+                android:layout_marginStart="335dp"
+                android:layout_marginRight="30dp"
+                android:clickable="true"
+                android:src="@drawable/ic_save_black"
+                app:backgroundTint="@color/white"
+                app:fabSize="mini" />
+        </RelativeLayout>
+
+    </androidx.cardview.widget.CardView>
 
 </FrameLayout>

@@ -11,9 +11,19 @@ public class Recipe {
     @SerializedName("image")
     private String image;
 
-    public Recipe(int id,String title, String image) {
+    private boolean featured;
+
+    public Recipe() {
+    }
+
+    public Recipe(int id, String title, String image,boolean featured) {
         this.title = title;
         this.image = image;
+        this.featured = featured;
+    }
+
+    public boolean isFeatured() {
+        return featured;
     }
 
     public int getId() {
@@ -37,6 +47,9 @@ public class Recipe {
 
     public void setImage(String image) {
         this.image = image;
+    }
+    public void setFeatured(boolean featured) {
+        this.featured = featured;
     }
 
 }

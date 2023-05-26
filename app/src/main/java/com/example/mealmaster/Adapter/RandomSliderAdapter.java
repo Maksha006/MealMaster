@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
 
+import com.example.mealmaster.FirebaseManager;
 import com.example.mealmaster.Listeners.RecipeClickListener;
 import com.example.mealmaster.model.Recipe;
 import com.example.mealmaster.R;
@@ -24,10 +25,18 @@ public class RandomSliderAdapter extends SliderViewAdapter<SliderAdapterVH> {
     List<Recipe> list;
     RecipeClickListener listener;
 
-    public RandomSliderAdapter(Context context, List<Recipe> list, RecipeClickListener listener) {
+    public interface RecipeFeatureClickListener {
+        void onRecipeFeatureClick(String recipeId);
+    }
+
+    // Dans votre adaptateur
+    private RecipeFeatureClickListener featureListener;
+
+    public RandomSliderAdapter(Context context, List<Recipe> list, RecipeClickListener listener, RecipeFeatureClickListener featureListener) {
         this.context = context;
         this.list = list;
         this.listener = listener;
+        this.featureListener = featureListener;
     }
 
     @Override
@@ -48,7 +57,11 @@ public class RandomSliderAdapter extends SliderViewAdapter<SliderAdapterVH> {
         viewHolder.random_list_container.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                listener.OnRecipeClicked(String.valueOf(list.get(position).getId()));
+                String recipeId = String.valueOf(list.get(position).getId());
+                listener.OnRecipeClicked(recipeId);
+
+                FirebaseManager firebaseManager = new FirebaseManager();
+                firebaseManager.setRecipeAsFeatured(recipeId);
             }
         });
 

@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,22 +32,29 @@ import com.example.mealmaster.Listeners.SpoonacularResponseListener;
 import com.example.mealmaster.model.Recipe;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.smarteist.autoimageslider.SliderView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class HomeFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private Context mContext;
     private View rootView;
+
+    FloatingActionButton fbFav;
+
+    Button btVedette;
 
     FirebaseDatabase db;
     DatabaseReference databaseReference;
@@ -70,8 +78,11 @@ public class HomeFragment extends Fragment implements SharedPreferences.OnShared
 
     private static final String SEEK_BAR_1_KEY = "seekBar1";
     private static final String SEEK_BAR_2_KEY = "seekBar2";
-
     private List<Recipe> recipeList = new ArrayList<>();
+
+    private RandomSliderAdapter.RecipeFeatureClickListener featureListener;
+
+    private List<Recipe> featuredRecipeList = new ArrayList<>();
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -101,11 +112,26 @@ public class HomeFragment extends Fragment implements SharedPreferences.OnShared
         dialog = new ProgressDialog(mContext);
         dialog.setTitle("Loading...");
 
-        manager = new SpoonacularManager(mContext);
+        /*manager = new SpoonacularManager(mContext);
         manager.getSpoonacularApi(spoonacularResponseListener);
-        dialog.show();
+        dialog.show();*/
+
+        // Bouton favori / vedette
+        fbFav = rootView.findViewById(R.id.fbFavorite);
+        btVedette = rootView.findViewById(R.id.btn_vedette);
+
+        List<String> recipeIds = new ArrayList<>();
+        recipeIds.add("149199");
+        recipeIds.add("157375");
+        recipeIds.add("631741");
+        recipeIds.add("631748");
+
+        setMultipleRecipesAsFeatured(recipeIds);
 
         getFirebaseRecipes();
+
+        db = FirebaseDatabase.getInstance();
+        databaseReference =db.getReference();
 
        //Assign variable du seekbar
         seekBar1 = rootView.findViewById(R.id.seek_bar1);
@@ -178,17 +204,24 @@ public class HomeFragment extends Fragment implements SharedPreferences.OnShared
         return rootView;
     }
 
+    public void setMultipleRecipesAsFeatured(List<String> recipeIds) {
+        for (String recipeId : recipeIds) {
+            FirebaseManager firebaseManager = new FirebaseManager();
+            firebaseManager.setRecipeAsFeatured(recipeId);
+        }
+    }
+
     private SpoonacularResponseListener spoonacularResponseListener = new SpoonacularResponseListener() {
         @Override
         public void didFetch(RandomSpoonacularResponse response, String message) {
             dialog.dismiss();
             sliderView = rootView.findViewById(R.id.image_slider);
-            imageSliderAdapter = new RandomSliderAdapter(mContext,response.recipes,recipeClickListener);
+            imageSliderAdapter = new RandomSliderAdapter(mContext,response.recipes,recipeClickListener,featureListener);
             sliderView.setSliderAdapter(imageSliderAdapter);
 
 
             db = FirebaseDatabase.getInstance();
-            databaseReference = db.getReference("mealmaster-92248");
+            databaseReference = db.getReference().child("recipes");
             for (Recipe recipe : response.recipes) {
                 String pushId = databaseReference.push().getKey();
                 databaseReference.child(pushId).setValue(recipe);
@@ -278,22 +311,23 @@ public class HomeFragment extends Fragment implements SharedPreferences.OnShared
 
     private void getFirebaseRecipes() {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("recipes");
-        databaseReference.addValueEventListener(new ValueEventListener() {
+        Query query = databaseReference.orderByChild("featured").equalTo(true).limitToFirst(4);
+        query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                recipeList.clear();
+                featuredRecipeList.clear();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Recipe recipe = snapshot.getValue(Recipe.class);
-                    recipeList.add(recipe);
+                    featuredRecipeList.add(recipe);
                 }
                 sliderView = rootView.findViewById(R.id.image_slider);
-                imageSliderAdapter = new RandomSliderAdapter(mContext, recipeList, recipeClickListener);
+                imageSliderAdapter = new RandomSliderAdapter(mContext, featuredRecipeList, recipeClickListener, featureListener);
                 sliderView.setSliderAdapter(imageSliderAdapter);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(mContext, error.getMessage(), Toast.LENGTH_SHORT);
+                Toast.makeText(mContext, error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -46,6 +46,17 @@
             android:src="@drawable/ic_save_black"
             app:backgroundTint="@color/white"
             app:fabSize="mini" />
+
+        <Button
+            android:id="@+id/btn_vedette"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_above="@+id/image_food"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="14dp"
+            android:layout_marginBottom="-131dp"
+            android:src="@drawable/ic_vedette"></Button>
+
     </RelativeLayout>
 
 </androidx.cardview.widget.CardView>
