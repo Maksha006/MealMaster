@@ -1,6 +1,8 @@
 package com.example.mealmaster.fragment;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -8,14 +10,28 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.SearchView;
+import android.widget.Toast;
 
 import com.example.mealmaster.R;
+import com.example.mealmaster.SearchResultsActivity;
 import com.example.mealmaster.model.Recipe;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class SearchFragment extends Fragment {
 
@@ -23,7 +39,10 @@ public class SearchFragment extends Fragment {
     private static final String API_KEY = "af3b71ca41664ff586770e97ce55e795";
     private static final int SEARCH_NUMBER = 25;
     private EditText ingredientTxt;
+
+    private Button submitBtn;
     ProgressDialog dialog;
+
     private List<Recipe> recipeList = new ArrayList<>();
 
     public SearchFragment() {
@@ -49,8 +68,68 @@ public class SearchFragment extends Fragment {
         dialog.setTitle("Loading...");
 
         ingredientTxt = rootView.findViewById(R.id.ingredientsTxt);
+        submitBtn = rootView.findViewById(R.id.submitBtn);
 
-
+        submitBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String searchIngredients = ingredientTxt.getText().toString();
+                new SpoonacularRecipeRequest().execute(searchIngredients);
+            }
+        });
         return rootView;
+    }
+
+    public class SpoonacularRecipeRequest extends AsyncTask<String, Void, List<Recipe>> {
+        @Override
+        protected List<Recipe> doInBackground(String... searchIngredients) {
+            List<Recipe> recipes = new ArrayList<>();
+            OkHttpClient client = new OkHttpClient();
+
+            HttpUrl.Builder urlBuilder = HttpUrl.parse("https://api.spoonacular.com/recipes/complexSearch").newBuilder();
+            urlBuilder.addQueryParameter("query", searchIngredients[0]);
+            urlBuilder.addQueryParameter("number", String.valueOf(SEARCH_NUMBER));
+            urlBuilder.addQueryParameter("apiKey", API_KEY);
+            String url = urlBuilder.build().toString();
+
+            Request request = new Request.Builder()
+                    .url(url)
+                    .build();
+
+            try {
+                Response response = client.newCall(request).execute();
+                String jsonResult = response.body().string();
+                JSONObject jsonObject  = new JSONObject (jsonResult);
+                JSONArray jsonArray = jsonObject.getJSONArray("results");
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject recipeJson = jsonArray.getJSONObject(i);
+                    String name = recipeJson.getString("title");
+                    String imageURL = recipeJson.getString("image");
+                    Recipe recipe = new Recipe(name, imageURL);
+                    recipes.add(recipe);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return recipes;
+        }
+
+        @Override
+        protected void onPostExecute(List<Recipe> recipes) {
+            super.onPostExecute(recipes);
+            dialog.dismiss();
+            if (recipes != null && recipes.size() > 0){
+                // Démarrer SearchResultsActivity
+                Intent intent = new Intent(getActivity(), SearchResultsActivity.class);
+                intent.putExtra("recipes", (Serializable) recipes);
+                startActivity(intent);
+            }else {
+                // Afficher un message disant qu'aucune recette n'a été trouvée
+                Toast.makeText(getActivity(), "Aucune recette trouvée", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 }

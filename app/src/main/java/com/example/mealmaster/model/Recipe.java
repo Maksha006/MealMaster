@@ -2,7 +2,9 @@ package com.example.mealmaster.model;
 
 import com.google.gson.annotations.SerializedName;
 
-public class Recipe {
+import java.io.Serializable;
+
+public class Recipe implements Serializable {
 
     @SerializedName("id")
     private int id;
@@ -20,6 +22,11 @@ public class Recipe {
         this.title = title;
         this.image = image;
         this.featured = featured;
+    }
+
+    public Recipe(String title, String image) {
+        this.title = title;
+        this.image = image;
     }
 
     public boolean isFeatured() {
