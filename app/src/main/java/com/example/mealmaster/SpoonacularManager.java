@@ -8,6 +8,8 @@ import com.example.mealmaster.Listeners.SpoonacularResponseListener;
 import com.example.mealmaster.model.Recipe;
 import com.example.mealmaster.model.RecipeDetailsResponses;
 
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -32,9 +34,9 @@ public class SpoonacularManager {
         this.context = context;
     }
 
-    public void getSpoonacularApi(SpoonacularResponseListener listener) {
+    public void getCategoryRandomRecipes(SpoonacularResponseListener listener, List<String> tags) {
         CallRandomRecipe callRandomRecipe = retrofit.create(CallRandomRecipe.class);
-        Call<RandomSpoonacularResponse> call = callRandomRecipe.callRandomRecipe(context.getString(R.string.api_key), "4");
+        Call<RandomSpoonacularResponse> call = callRandomRecipe.callRandomRecipe(context.getString(R.string.api_key), "25",tags);
         call.enqueue(new Callback<RandomSpoonacularResponse>() {
             @Override
             public void onResponse(Call<RandomSpoonacularResponse> call, Response<RandomSpoonacularResponse> response) {
@@ -82,7 +84,8 @@ public class SpoonacularManager {
         @GET("recipes/random")
         Call<RandomSpoonacularResponse>callRandomRecipe(
                 @Query("apiKey") String apiKey,
-                @Query("number") String number
+                @Query("number") String number,
+                @Query("tags") List<String> tags
         );
     }
 

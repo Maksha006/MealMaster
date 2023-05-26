@@ -36,4 +36,17 @@
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
 
+    <!--Catégories des recettes-->
+    <string-array name="tags">
+        <item>main course</item>
+        <item>side dish</item>
+        <item>dessert</item>
+        <item>salad</item>
+        <item>breakfast</item>
+        <item>soup</item>
+        <item>fingerfood</item>
+        <item>vegetarian</item>
+    </string-array>
+
+
 </resources>

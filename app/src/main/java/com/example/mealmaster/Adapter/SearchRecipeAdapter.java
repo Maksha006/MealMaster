@@ -1,5 +1,6 @@
 package com.example.mealmaster.Adapter;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,7 @@ import java.util.List;
 
 public class SearchRecipeAdapter extends RecyclerView.Adapter<SearchRecipeAdapter.ViewHolder> {
 
+    Context context;
     private List<Recipe> recipes;
 
     public SearchRecipeAdapter(List<Recipe> recipes) {

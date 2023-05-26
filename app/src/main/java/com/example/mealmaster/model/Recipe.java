@@ -13,6 +13,9 @@ public class Recipe implements Serializable {
     @SerializedName("image")
     private String image;
 
+    @SerializedName("tags")
+    private String tags;
+
     private boolean featured;
 
     public Recipe() {
@@ -45,6 +48,9 @@ public class Recipe implements Serializable {
         return image;
     }
 
+    public String getTags() {
+        return tags;
+    }
 
     public void setId(int id) {this.id = id;}
 
@@ -54,6 +60,9 @@ public class Recipe implements Serializable {
 
     public void setImage(String image) {
         this.image = image;
+    }
+    public void setTags(String tags) {
+        this.tags = tags;
     }
     public void setFeatured(boolean featured) {
         this.featured = featured;

@@ -6,6 +6,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +17,10 @@ import android.widget.EditText;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+import com.example.mealmaster.Adapter.CategoryAdapter;
+import com.example.mealmaster.Listeners.CategoryClickListener;
 import com.example.mealmaster.R;
+import com.example.mealmaster.RecipesDetails;
 import com.example.mealmaster.SearchResultsActivity;
 import com.example.mealmaster.model.Recipe;
 
@@ -27,6 +32,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.XMLFormatter;
 
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -39,11 +45,18 @@ public class SearchFragment extends Fragment {
     private static final String API_KEY = "af3b71ca41664ff586770e97ce55e795";
     private static final int SEARCH_NUMBER = 25;
     private EditText ingredientTxt;
-
     private Button submitBtn;
     ProgressDialog dialog;
 
     private List<Recipe> recipeList = new ArrayList<>();
+
+    private RecyclerView category_recyclerView;
+    RecyclerView.LayoutManager layoutManager;
+    CategoryAdapter categoryAdapter;
+
+    int [] arr ={R.drawable.main_course,R.drawable.side_dish,R.drawable.breakfast,R.drawable.salad,
+            R.drawable.soup,R.drawable.dessert_img,R.drawable.fingerfood,R.drawable.vegetarian,
+            R.drawable.gluten_free};
 
     public SearchFragment() {
         // Required empty public constructor
@@ -64,6 +77,17 @@ public class SearchFragment extends Fragment {
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_search, container, false);
 
+
+        //category de recettes
+        category_recyclerView = rootView.findViewById(R.id.category_recyclerView);
+        layoutManager = new GridLayoutManager(getContext(),2);
+        category_recyclerView.setLayoutManager(layoutManager);
+        categoryAdapter = new CategoryAdapter(arr);
+
+        category_recyclerView.setAdapter(categoryAdapter);
+
+        category_recyclerView.setHasFixedSize(true);
+
         dialog = new ProgressDialog(getContext());
         dialog.setTitle("Loading...");
 
@@ -79,6 +103,14 @@ public class SearchFragment extends Fragment {
         });
         return rootView;
     }
+
+    private final CategoryClickListener categoryClickListener = new CategoryClickListener() {
+        @Override
+        public void onCategoryClick(Recipe recipe) {
+           // Intent intent = new Intent(getActivity(), RecipesDetails.class)
+            Toast.makeText(getContext(), (CharSequence) recipe,Toast.LENGTH_SHORT).show();
+        }
+    };
 
     public class SpoonacularRecipeRequest extends AsyncTask<String, Void, List<Recipe>> {
         @Override
