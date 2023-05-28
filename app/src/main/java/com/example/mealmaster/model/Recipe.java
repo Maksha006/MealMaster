@@ -20,6 +20,8 @@ public class Recipe implements Serializable {
 
     private boolean isFavorite;
 
+    private int vote;
+
     public Recipe() {
     }
 
@@ -33,6 +35,12 @@ public class Recipe implements Serializable {
     public Recipe(String title, String image) {
         this.title = title;
         this.image = image;
+    }
+
+    public Recipe(String title, String image, int vote) {
+        this.title = title;
+        this.image = image;
+        this.vote = vote;
     }
 
     public boolean isFeatured() {

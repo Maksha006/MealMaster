@@ -1,6 +1,7 @@
 package com.example.mealmaster;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.ImageView;
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mealmaster.Adapter.MapsRecipeAdapter;
+import com.example.mealmaster.Listeners.RecipeClickListener;
 import com.example.mealmaster.model.Recipe;
 
 import org.json.JSONArray;
@@ -68,9 +70,9 @@ public class MapsRecipes extends AppCompatActivity {
             OkHttpClient client = new OkHttpClient();
 
             HttpUrl.Builder urlBuilder = HttpUrl.parse("https://api.spoonacular.com/recipes/random").newBuilder();
-            urlBuilder.addQueryParameter("cuisine", tags[0]);
-            urlBuilder.addQueryParameter("number", "25");
             urlBuilder.addQueryParameter("apiKey", API_KEY);
+            urlBuilder.addQueryParameter("number", "25");
+            urlBuilder.addQueryParameter("cuisine", tags[0]);
             String url = urlBuilder.build().toString();
 
             Request request = new Request.Builder()

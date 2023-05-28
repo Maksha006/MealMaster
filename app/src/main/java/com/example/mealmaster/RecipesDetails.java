@@ -16,6 +16,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.mealmaster.Adapter.IngredientsAdapter;
+import com.example.mealmaster.Adapter.MapsRecipeAdapter;
+import com.example.mealmaster.Listeners.RecipeClickListener;
 import com.example.mealmaster.Listeners.RecipeDetailsListener;
 import com.example.mealmaster.fragment.HomeFragment;
 import com.example.mealmaster.model.Recipe;
@@ -30,9 +32,14 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class RecipesDetails extends AppCompatActivity {
 
     int id;
+
+    int idMaps;
 
     private Recipe recipe;
 
@@ -46,12 +53,16 @@ public class RecipesDetails extends AppCompatActivity {
     CollapsingToolbarLayout ct_meal_name;
     ImageView im_meal_image;
     RecyclerView recycler_meal_ingredients;
+
+    RecyclerView maps_meal_recyclerView;
     SpoonacularManager manager;
     ProgressDialog dialog;
     IngredientsAdapter ingredientsAdapter;
+    MapsRecipeAdapter mapsRecipeAdapter;
 
     RecipeDetailsResponses response;
 
+    private List<Recipe> recipeList = new ArrayList<>();
     FloatingActionButton fbFavorite;
 
     ImageView btnback;
@@ -72,13 +83,24 @@ public class RecipesDetails extends AppCompatActivity {
         findViews();
         //checkIsFavorite();
 
+        Bundle extras = getIntent().getExtras();
 
-        id = Integer.parseInt(getIntent().getStringExtra("id"));
-        manager = new SpoonacularManager(this);
-        manager.getRecipeDetails(recipeDetailsListener, id);
-        dialog = new ProgressDialog(this);
-        dialog.setTitle("Loading Details...");
-        dialog.show();
+        if (extras != null) {
+            String mapIdString = extras.getString("Mapsid");
+            String idString = extras.getString("id");
+            if (mapIdString != null) {
+                id = Integer.parseInt(mapIdString);
+            }else if (idString != null) {
+                id = Integer.parseInt(idString);
+            }else {
+                Toast.makeText(this, "aucun id n'est présent", Toast.LENGTH_SHORT).show();
+            }
+            manager = new SpoonacularManager(this);
+            manager.getRecipeDetails(recipeDetailsListener, id);
+            dialog = new ProgressDialog(this);
+            dialog.setTitle("Loading Details...");
+            dialog.show();
+        }
 
         btnback.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -113,6 +135,7 @@ public class RecipesDetails extends AppCompatActivity {
             recycler_meal_ingredients.setLayoutManager(new LinearLayoutManager(RecipesDetails.this,LinearLayoutManager.HORIZONTAL,false));
             ingredientsAdapter = new IngredientsAdapter(RecipesDetails.this, response.extendedIngredients);
             recycler_meal_ingredients.setAdapter(ingredientsAdapter);
+
         }
 
         @Override
@@ -120,4 +143,6 @@ public class RecipesDetails extends AppCompatActivity {
             Toast.makeText(RecipesDetails.this,message,Toast.LENGTH_SHORT).show();
         }
     };
+
+
 }

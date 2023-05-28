@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -16,6 +17,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,16 +43,30 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.annotations.Nullable;
 import com.smarteist.autoimageslider.SliderView;
+import com.squareup.picasso.Picasso;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class HomeFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
+public class HomeFragment extends Fragment /*implements SharedPreferences.OnSharedPreferenceChangeListener*/ {
 
     private Context mContext;
     private View rootView;
@@ -67,14 +83,25 @@ public class HomeFragment extends Fragment implements SharedPreferences.OnShared
     Boolean fvrtChecked = false;
     /////
 
-    private String getString;
+    /*private String getString;
     SeekBar seekBar1,seekBar2;
     TextView Option1,Option2;
     TextView percent1,percent2;
     double count1 = 1 ,count2 = 1;
-    boolean flag1 = true, flag2 = true;
+    boolean flag1 = true, flag2 = true;*/
 
     private final String API_KEY = "af3b71ca41664ff586770e97ce55e795";
+
+    private static final int SEARCH_NUMBER = 2;
+
+
+    // graphisme (bouton,titre,images) pour le tournoi //
+    ImageView im_recipe1;
+    ImageView im_recipe2;
+
+    Button bt_vote1;
+    Button bt_vote2;
+    ///////////////////////////////////
 
     private SliderView sliderView;
     private RandomSliderAdapter imageSliderAdapter;
@@ -84,8 +111,8 @@ public class HomeFragment extends Fragment implements SharedPreferences.OnShared
 
     private static final String SHARED_PREFERENCES_NAME = "MySharedPreferences";
 
-    private static final String SEEK_BAR_1_KEY = "seekBar1";
-    private static final String SEEK_BAR_2_KEY = "seekBar2";
+  /*  private static final String SEEK_BAR_1_KEY = "seekBar1";
+    private static final String SEEK_BAR_2_KEY = "seekBar2";*/
     private List<Recipe> recipeList = new ArrayList<>();
 
     private RandomSliderAdapter.RecipeFeatureClickListener featureListener;
@@ -118,11 +145,32 @@ public class HomeFragment extends Fragment implements SharedPreferences.OnShared
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_home, container, false);
 
+        // image et bouton pour le tournoi //////////////////
+        im_recipe1 = rootView.findViewById(R.id.recipeImage1);
+        im_recipe2 = rootView.findViewById(R.id.recipeImage2);
+        bt_vote1 = rootView.findViewById(R.id.voteButton1);
+        bt_vote2 = rootView.findViewById(R.id.voteButton2);
+        /////////////////////////////////////////////////////
+
         firebaseAuth = FirebaseAuth.getInstance();
         databaseReference = FirebaseDatabase.getInstance().getReference();
 
         dialog = new ProgressDialog(mContext);
         dialog.setTitle("Loading...");
+
+        bt_vote1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                voteForRecipe(recipeList.get(0).getTitle());
+            }
+        });
+
+        bt_vote2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                voteForRecipe(recipeList.get(1).getTitle());
+            }
+        });
 
         /*manager = new SpoonacularManager(mContext);
         manager.getSpoonacularApi(spoonacularResponseListener);
@@ -145,75 +193,112 @@ public class HomeFragment extends Fragment implements SharedPreferences.OnShared
         db = FirebaseDatabase.getInstance();
         databaseReference =db.getReference();
 
-       //Assign variable du seekbar
-        seekBar1 = rootView.findViewById(R.id.seek_bar1);
-        seekBar2 = rootView.findViewById(R.id.seek_bar2);
+        new TournamentRecipeRequest().execute();
 
-        //Assign variable des Options
-        Option1 = rootView.findViewById(R.id.option1);
-        Option2 = rootView.findViewById(R.id.option2);
-
-        //Assign variable des pourcentages
-        percent1 = rootView.findViewById(R.id.percent1);
-        percent2 = rootView.findViewById(R.id.percent2);
-
-        // obtenir une instance of SharedPreferences
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-
-        seekBar1.setProgress(sharedPreferences.getInt("seekBar1Value", 0));
-        seekBar2.setProgress(sharedPreferences.getInt("seekBar2Value", 0));
-
-        seekBar1.setOnSeekBarChangeListener(seekBarChangeListener);
-        seekBar2.setOnSeekBarChangeListener(seekBarChangeListener);
-
-
-
-        seekBar1.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                return true;
-            }
-        });
-
-        Option1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                // check the Options
-                if (flag1){
-                    count1++;
-                    count2 = 1;
-                    flag1 = false;
-                    flag2 = true;
-                    // calculate percentage
-                    calculatePercent();
-                }
-            }
-        });
-
-        seekBar2.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                return true;
-            }
-        });
-
-        Option2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                // check the Options
-                if (flag1){
-                    count1 = 1;
-                    count2 ++;
-                    flag1 = true;
-                    flag2 = false;
-                    // calculate percentage
-                    calculatePercent();
-                }
-            }
-        });
         return rootView;
+    }
+
+    // récupération des recettes pour le tournoi //
+    public class TournamentRecipeRequest extends AsyncTask<String, Void, List<Recipe>>{
+        @Override
+        protected List<Recipe> doInBackground(String... tournamentRecipes) {
+            List<Recipe> VoteRecipes = new ArrayList<>();
+            OkHttpClient client = new OkHttpClient();
+
+            HttpUrl.Builder urlBuilder = HttpUrl.parse("https://api.spoonacular.com/recipes/complexSearch").newBuilder();
+            urlBuilder.addQueryParameter("query", "pizza");
+            urlBuilder.addQueryParameter("number", String.valueOf(SEARCH_NUMBER));
+            urlBuilder.addQueryParameter("apiKey", API_KEY);
+            String url = urlBuilder.build().toString();
+
+            Request request = new Request.Builder()
+                    .url(url)
+                    .build();
+
+            try {
+                Response response = client.newCall(request).execute();
+                String jsonResult = response.body().string();
+                JSONObject jsonObject  = new JSONObject (jsonResult);
+                JSONArray jsonArray = jsonObject.getJSONArray("results");
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject recipeJson = jsonArray.getJSONObject(i);
+                    String name = recipeJson.getString("title");
+                    String imageURL = recipeJson.getString("image");
+                    Recipe recipe = new Recipe(name, imageURL, 0); // Init votes to 0
+
+                    String recipeKey = name.replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
+
+                    // Insert the recipe to Firebase
+                    DatabaseReference recipesRef = FirebaseDatabase.getInstance().getReference("recipes");
+                   // String recipeId = recipesRef.push().getKey(); // Generates a unique ID for the new recipe
+
+                    // Saves the new recipe in the database
+                    recipesRef.child(recipeKey).setValue(recipe);
+
+                    VoteRecipes.add(recipe);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return VoteRecipes;
+        }
+    @Override
+        protected void onPostExecute(List<Recipe> recipes) {
+            super.onPostExecute(recipes);
+            if (recipes != null && recipes.size() >= 2){
+                recipeList.clear();
+                recipeList.addAll(recipes);
+
+                String nameRecipe1 = recipeList.get(0).getTitle();
+                String nameRecipe2 = recipeList.get(1).getTitle();
+
+                String imageUrl1 = recipeList.get(0).getImage(); // obtenir l'URL de la première image
+                String imageUrl2 = recipeList.get(1).getImage(); // obtenir l'URL de la deuxième image
+
+                // Utilisez Picasso pour charger les images dans vos ImageView
+                Picasso.get().load(imageUrl1).into(im_recipe1);
+                Picasso.get().load(imageUrl2).into(im_recipe2);
+            }
+        }
+    }
+
+    private void voteForRecipe(String recipeName) {
+
+        String recipeKey = recipeName.replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
+
+        DatabaseReference recipeRef = FirebaseDatabase.getInstance().getReference("recipes").child(recipeKey).child("votes");
+        recipeRef.runTransaction(new Transaction.Handler() {
+            @NonNull
+            @Override
+            public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
+                Integer votes = mutableData.getValue(Integer.class);
+                if (votes == null) {
+                    // Si aucun vote n'existe encore, initialisez le compteur à 1
+                    votes = 1;
+                } else {
+                    // Incrémente le nombre de votes
+                    votes++;
+                }
+
+                // Met à jour le nombre de votes dans Firebase
+                mutableData.setValue(votes);
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(@Nullable DatabaseError databaseError, boolean committed, @Nullable DataSnapshot dataSnapshot) {
+                if (committed) {
+                    // Le vote a été enregistré avec succès
+                    Toast.makeText(mContext, "Vote enregistré !", Toast.LENGTH_SHORT).show();
+                } else {
+                    // La transaction a échoué
+                    Toast.makeText(mContext, "Erreur lors de l'enregistrement du vote.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     private RandomSliderAdapter.RecipeFeatureClickListener featureFavoriteListener = new RandomSliderAdapter.RecipeFeatureClickListener() {
@@ -263,7 +348,7 @@ public class HomeFragment extends Fragment implements SharedPreferences.OnShared
         }
     };
 
-    private void calculatePercent() {
+  /*  private void calculatePercent() {
 
         double total = count1 + count2;
         double recipePercent1 = (count1/total)*100;
@@ -274,10 +359,10 @@ public class HomeFragment extends Fragment implements SharedPreferences.OnShared
 
         percent2.setText(String.format("%.2f",recipePercent2));
         seekBar2.setProgress((int) recipePercent2);
-    }
+    }*/
 
 
-    private SeekBar.OnSeekBarChangeListener seekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
+  /*  private SeekBar.OnSeekBarChangeListener seekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean b) {
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -326,7 +411,7 @@ public class HomeFragment extends Fragment implements SharedPreferences.OnShared
             SeekBar seekBar2 = rootView.findViewById(R.id.seek_bar2);
             seekBar2.setProgress(sharedPreferences.getInt(s, 0));
         }
-    }
+    }*/
 
     private final RecipeClickListener recipeClickListener = new RecipeClickListener() {
         @Override
