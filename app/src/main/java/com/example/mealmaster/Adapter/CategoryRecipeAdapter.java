@@ -17,25 +17,25 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class SearchRecipeAdapter extends RecyclerView.Adapter<SearchRecipeAdapter.ViewHolder> {
+public class CategoryRecipeAdapter extends RecyclerView.Adapter<CategoryRecipeAdapter.ViewHolder> {
 
     Context context;
     private List<Recipe> recipes;
 
-    public SearchRecipeAdapter(List<Recipe> recipes) {
+    public CategoryRecipeAdapter(List<Recipe> recipes) {
         this.recipes = recipes;
     }
 
     @NonNull
     @Override
-    public SearchRecipeAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public CategoryRecipeAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_search_recipe, parent, false);
-        return new ViewHolder(view);
+                .inflate(R.layout.category_of_food, parent, false);
+        return new CategoryRecipeAdapter.ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull SearchRecipeAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull CategoryRecipeAdapter.ViewHolder holder, int position) {
         holder.DishName_title.setText(recipes.get(position).getTitle());
         holder.DishName_title.setSelected(true);
         String imageUrl = recipes.get(position).getImage();
@@ -53,18 +53,15 @@ public class SearchRecipeAdapter extends RecyclerView.Adapter<SearchRecipeAdapte
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        CardView search_list_container;
-
-        ImageView category_list_contenair;
+        CardView category_list_container;
         TextView DishName_title;
         ImageView image_food;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            search_list_container = itemView.findViewById(R.id.search_list_container);
-            category_list_contenair = itemView.findViewById(R.id.category_list_container);
-            DishName_title = itemView.findViewById(R.id.Dish_title);
-            image_food = itemView.findViewById(R.id.picture_food);
+            category_list_container = itemView.findViewById(R.id.category_list_container);
+            DishName_title = itemView.findViewById(R.id.DishName_category);
+            image_food = itemView.findViewById(R.id.image_category_food);
         }
     }
 }

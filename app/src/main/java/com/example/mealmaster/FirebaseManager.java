@@ -20,13 +20,13 @@ public class FirebaseManager {
     }
 
     public void setRecipeAsFeatured(String recipeId) {
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("recipes").child(recipeId);
-
-        Map<String, Object> recipeUpdates = new HashMap<>();
-        recipeUpdates.put("featured", true);
-
-        myRef.updateChildren(recipeUpdates);
+        DatabaseReference recipeRef = mDatabase.child("recipes").child(recipeId).child("featured");
+        recipeRef.setValue(true);
     }
 
+    public void setRecipe(String recipeId) {
+        DatabaseReference recipeRef = mDatabase.child("recipes").child(recipeId);
+        recipeRef.setValue(true);
+    }
 }
+

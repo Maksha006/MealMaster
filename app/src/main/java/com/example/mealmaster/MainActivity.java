@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.example.mealmaster.fragment.FavoriteFragment;
 import com.example.mealmaster.fragment.HomeFragment;
+import com.example.mealmaster.fragment.MapFragment;
 import com.example.mealmaster.fragment.ProfileFragment;
 import com.example.mealmaster.fragment.SearchFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -95,6 +96,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 case R.id.profile:
                     replaceFragment(new ProfileFragment());
                     break;
+
+                case R.id.map:
+                    replaceFragment(new MapFragment());
+                    break;
+
             }
 
             return true;

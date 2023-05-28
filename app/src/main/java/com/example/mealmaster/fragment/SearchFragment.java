@@ -18,6 +18,7 @@ import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.example.mealmaster.Adapter.CategoryAdapter;
+import com.example.mealmaster.ListOfRecipes;
 import com.example.mealmaster.Listeners.CategoryClickListener;
 import com.example.mealmaster.R;
 import com.example.mealmaster.RecipesDetails;
@@ -47,12 +48,12 @@ public class SearchFragment extends Fragment {
     private EditText ingredientTxt;
     private Button submitBtn;
     ProgressDialog dialog;
-
-    private List<Recipe> recipeList = new ArrayList<>();
-
     private RecyclerView category_recyclerView;
+
     RecyclerView.LayoutManager layoutManager;
     CategoryAdapter categoryAdapter;
+
+    String tagArr[];
 
     int [] arr ={R.drawable.main_course,R.drawable.side_dish,R.drawable.breakfast,R.drawable.salad,
             R.drawable.soup,R.drawable.dessert_img,R.drawable.fingerfood,R.drawable.vegetarian,
@@ -77,15 +78,27 @@ public class SearchFragment extends Fragment {
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_search, container, false);
 
+        tagArr = getResources().getStringArray(R.array.tags);
 
         //category de recettes
         category_recyclerView = rootView.findViewById(R.id.category_recyclerView);
         layoutManager = new GridLayoutManager(getContext(),2);
         category_recyclerView.setLayoutManager(layoutManager);
-        categoryAdapter = new CategoryAdapter(arr);
+        categoryAdapter = new CategoryAdapter(arr,new CategoryClickListener() {
+            @Override
+            public void onCategoryClick(int position) {
+                Intent intent = new Intent(getActivity(),ListOfRecipes.class);
+
+                // Pass the selected tag to the new activity
+                String selectedTag = tagArr[position];
+                intent.putExtra("selectedTag", selectedTag);
+
+                // Start the new activity
+                startActivity(intent);
+            }
+        });
 
         category_recyclerView.setAdapter(categoryAdapter);
-
         category_recyclerView.setHasFixedSize(true);
 
         dialog = new ProgressDialog(getContext());
@@ -103,14 +116,6 @@ public class SearchFragment extends Fragment {
         });
         return rootView;
     }
-
-    private final CategoryClickListener categoryClickListener = new CategoryClickListener() {
-        @Override
-        public void onCategoryClick(Recipe recipe) {
-           // Intent intent = new Intent(getActivity(), RecipesDetails.class)
-            Toast.makeText(getContext(), (CharSequence) recipe,Toast.LENGTH_SHORT).show();
-        }
-    };
 
     public class SpoonacularRecipeRequest extends AsyncTask<String, Void, List<Recipe>> {
         @Override

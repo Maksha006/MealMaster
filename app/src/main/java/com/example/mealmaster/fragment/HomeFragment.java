@@ -29,9 +29,12 @@ import com.example.mealmaster.RecipesDetails;
 import com.example.mealmaster.RegisterActivity;
 import com.example.mealmaster.SpoonacularManager;
 import com.example.mealmaster.Listeners.SpoonacularResponseListener;
+import com.example.mealmaster.User;
 import com.example.mealmaster.model.Recipe;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -52,12 +55,17 @@ public class HomeFragment extends Fragment implements SharedPreferences.OnShared
     private Context mContext;
     private View rootView;
 
-    FloatingActionButton fbFav;
-
     Button btVedette;
 
+    /////
+    FloatingActionButton fbFav;
     FirebaseDatabase db;
+
+    FirebaseAuth firebaseAuth;
+
     DatabaseReference databaseReference;
+    Boolean fvrtChecked = false;
+    /////
 
     private String getString;
     SeekBar seekBar1,seekBar2;
@@ -83,6 +91,7 @@ public class HomeFragment extends Fragment implements SharedPreferences.OnShared
     private RandomSliderAdapter.RecipeFeatureClickListener featureListener;
 
     private List<Recipe> featuredRecipeList = new ArrayList<>();
+    private List<Recipe> RecipeList = new ArrayList<>();
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -108,6 +117,9 @@ public class HomeFragment extends Fragment implements SharedPreferences.OnShared
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_home, container, false);
+
+        firebaseAuth = FirebaseAuth.getInstance();
+        databaseReference = FirebaseDatabase.getInstance().getReference();
 
         dialog = new ProgressDialog(mContext);
         dialog.setTitle("Loading...");
@@ -203,6 +215,23 @@ public class HomeFragment extends Fragment implements SharedPreferences.OnShared
         });
         return rootView;
     }
+
+    private RandomSliderAdapter.RecipeFeatureClickListener featureFavoriteListener = new RandomSliderAdapter.RecipeFeatureClickListener() {
+        @Override
+        public void onRecipeFeatureClick(String recipeId) {
+            FirebaseManager firebaseManager = new FirebaseManager();
+            firebaseManager.setRecipe(recipeId);
+
+            // Mettre à jour l'attribut isFavorite de la recette
+            for (Recipe recipe : RecipeList) {
+                if (String.valueOf(recipe.getId()).equals(recipeId)) {
+                    recipe.setFavorite(!recipe.isFavorite());
+                    firebaseManager.saveRecipe(recipe);
+                    break;
+                }
+            }
+        }
+    };
 
     public void setMultipleRecipesAsFeatured(List<String> recipeIds) {
         for (String recipeId : recipeIds) {

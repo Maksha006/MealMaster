@@ -18,8 +18,10 @@ import android.widget.Toast;
 import com.example.mealmaster.Adapter.IngredientsAdapter;
 import com.example.mealmaster.Listeners.RecipeDetailsListener;
 import com.example.mealmaster.fragment.HomeFragment;
+import com.example.mealmaster.model.Recipe;
 import com.example.mealmaster.model.RecipeDetailsResponses;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -31,6 +33,15 @@ import com.squareup.picasso.Picasso;
 public class RecipesDetails extends AppCompatActivity {
 
     int id;
+
+    private Recipe recipe;
+
+    private User user;
+
+    boolean isInMyFavorite = false;
+
+    FirebaseAuth firebaseAuth;
+
     TextView tv_meal_summary, tv_time,tv_people,tv_mealType;
     CollapsingToolbarLayout ct_meal_name;
     ImageView im_meal_image;
@@ -40,20 +51,31 @@ public class RecipesDetails extends AppCompatActivity {
     IngredientsAdapter ingredientsAdapter;
 
     RecipeDetailsResponses response;
+
+    FloatingActionButton fbFavorite;
+
     ImageView btnback;
+
+    String recipeId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipes_details);
 
-        btnback = findViewById(R.id.btnBack);
+        firebaseAuth = FirebaseAuth.getInstance();
+
+       /* if(firebaseAuth.getCurrentUser() != null){
+            checkIsFavorite();
+        }*/
 
         findViews();
+        //checkIsFavorite();
+
 
         id = Integer.parseInt(getIntent().getStringExtra("id"));
         manager = new SpoonacularManager(this);
-        manager.getRecipeDetails(recipeDetailsListener,id);
+        manager.getRecipeDetails(recipeDetailsListener, id);
         dialog = new ProgressDialog(this);
         dialog.setTitle("Loading Details...");
         dialog.show();
@@ -65,10 +87,11 @@ public class RecipesDetails extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
     }
 
     private void findViews() {
+        btnback = findViewById(R.id.btnBack);
+        fbFavorite = findViewById(R.id.fbFavorite);
         ct_meal_name = findViewById(R.id.collapsing_toolbar);
         tv_time = findViewById(R.id.tvTime);
         tv_people = findViewById(R.id.tv_people);

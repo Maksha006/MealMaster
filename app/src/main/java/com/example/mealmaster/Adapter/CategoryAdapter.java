@@ -9,19 +9,25 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.mealmaster.Listeners.CategoryClickListener;
 import com.example.mealmaster.R;
+import com.example.mealmaster.SpoonacularManager;
 import com.example.mealmaster.model.Recipe;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHolder> {
 
     int catArr[];
 
-    private List<Recipe> recipes;
+    private List<Recipe> list;
 
-    public CategoryAdapter(int[] catArr) {
+    CategoryClickListener listener;
+
+    public CategoryAdapter(int[] catArr, CategoryClickListener listener) {
         this.catArr = catArr;
+        this.listener = listener;
     }
 
     @NonNull
@@ -36,7 +42,14 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.Category_image.setImageResource(catArr[position]);
         holder.Category_name.setText("Image No° "+position);
-
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listener != null) {
+                    listener.onCategoryClick(position);
+                }
+            }
+        });
     }
 
     @Override

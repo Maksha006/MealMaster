@@ -18,6 +18,8 @@ public class Recipe implements Serializable {
 
     private boolean featured;
 
+    private boolean isFavorite;
+
     public Recipe() {
     }
 
@@ -25,6 +27,7 @@ public class Recipe implements Serializable {
         this.title = title;
         this.image = image;
         this.featured = featured;
+        this.isFavorite = false;
     }
 
     public Recipe(String title, String image) {
@@ -52,6 +55,10 @@ public class Recipe implements Serializable {
         return tags;
     }
 
+    public boolean isFavorite() {
+        return isFavorite;
+    }
+
     public void setId(int id) {this.id = id;}
 
     public void setTitle(String title) {
@@ -68,4 +75,7 @@ public class Recipe implements Serializable {
         this.featured = featured;
     }
 
+    public void setFavorite(boolean favorite) {
+        isFavorite = favorite;
+    }
 }

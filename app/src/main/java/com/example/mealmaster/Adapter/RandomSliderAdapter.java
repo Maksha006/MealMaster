@@ -14,6 +14,8 @@ import com.example.mealmaster.Listeners.RecipeClickListener;
 import com.example.mealmaster.model.Recipe;
 import com.example.mealmaster.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.smarteist.autoimageslider.SliderViewAdapter;
 import com.squareup.picasso.Picasso;
 
@@ -50,6 +52,8 @@ public class RandomSliderAdapter extends SliderViewAdapter<SliderAdapterVH> {
     @Override
     public void onBindViewHolder(SliderAdapterVH viewHolder, int position) {
 
+        Recipe recipe = list.get(position);
+
         viewHolder.DishName_title.setText(list.get(position).getTitle());
         viewHolder.DishName_title.setSelected(true);
         Picasso.get().load(list.get(position).getImage()).into(viewHolder.image_food);
@@ -57,14 +61,23 @@ public class RandomSliderAdapter extends SliderViewAdapter<SliderAdapterVH> {
         viewHolder.random_list_container.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String recipeId = String.valueOf(list.get(position).getId());
+                String recipeId = String.valueOf(recipe.getId());
                 listener.OnRecipeClicked(recipeId);
 
                 FirebaseManager firebaseManager = new FirebaseManager();
-                firebaseManager.setRecipeAsFeatured(recipeId);
+                firebaseManager.setRecipe(recipeId);
+
+                // Mettre à jour l'attribut isFavorite de la recette
+                recipe.setFavorite(!recipe.isFavorite());
+                firebaseManager.saveRecipe(recipe);
             }
         });
 
+        if (recipe.isFavorite()) {
+            viewHolder.btn_like.setImageResource(R.drawable.ic_favorite);
+        } else {
+            viewHolder.btn_like.setImageResource(R.drawable.ic_favoritewhite);
+        }
     }
 
     @Override
