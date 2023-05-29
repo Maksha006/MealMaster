@@ -127,7 +127,6 @@ public class SearchResultsActivity extends AppCompatActivity {
                 SearchRecipeAdapter adapter = new SearchRecipeAdapter(recipeList);
                 recyclerView.setLayoutManager(new LinearLayoutManager(SearchResultsActivity.this));
                 recyclerView.setAdapter(adapter);
-                // Cacher le texte "Aucune recette trouvée."
             }
         }
     }

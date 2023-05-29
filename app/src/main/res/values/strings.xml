@@ -40,12 +40,13 @@
     <string-array name="tags">
         <item>main course</item>
         <item>side dish</item>
-        <item>dessert</item>
-        <item>salad</item>
         <item>breakfast</item>
+        <item>salad</item>
         <item>soup</item>
+        <item>dessert</item>
         <item>fingerfood</item>
         <item>vegetarian</item>
+        <item>appetizer</item>
     </string-array>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

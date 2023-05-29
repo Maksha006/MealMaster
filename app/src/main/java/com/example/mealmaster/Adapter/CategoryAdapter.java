@@ -23,10 +23,13 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
 
     private List<Recipe> list;
 
+    String tagArr[];
+
     CategoryClickListener listener;
 
-    public CategoryAdapter(int[] catArr, CategoryClickListener listener) {
+    public CategoryAdapter(int[] catArr,String[] tagArr,CategoryClickListener listener) {
         this.catArr = catArr;
+        this.tagArr = tagArr;
         this.listener = listener;
     }
 
@@ -41,7 +44,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.Category_image.setImageResource(catArr[position]);
-        holder.Category_name.setText("Image No° "+position);
+        holder.Category_name.setText(tagArr[position]);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

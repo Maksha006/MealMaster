@@ -36,7 +36,7 @@ public class ListOfRecipes extends AppCompatActivity {
 
         String selectedTag = getIntent().getStringExtra("selectedTag");
         manager = new SpoonacularManager(this);
-        manager.getCategoryRandomRecipes(spoonacularResponseListener,tags);
+        manager.getCategoryRandomRecipes(spoonacularResponseListener,selectedTag);
         dialog = new ProgressDialog(this);
         dialog.setTitle("Loading Recipes...");
         dialog.show();

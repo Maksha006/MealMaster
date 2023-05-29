@@ -34,7 +34,7 @@ public class SpoonacularManager {
         this.context = context;
     }
 
-    public void getCategoryRandomRecipes(SpoonacularResponseListener listener, List<String> tags) {
+    public void getCategoryRandomRecipes(SpoonacularResponseListener listener, String tags) {
         CallRandomRecipe callRandomRecipe = retrofit.create(CallRandomRecipe.class);
         Call<RandomSpoonacularResponse> call = callRandomRecipe.callRandomRecipe(context.getString(R.string.api_key), "25",tags);
         call.enqueue(new Callback<RandomSpoonacularResponse>() {
@@ -85,7 +85,7 @@ public class SpoonacularManager {
         Call<RandomSpoonacularResponse>callRandomRecipe(
                 @Query("apiKey") String apiKey,
                 @Query("number") String number,
-                @Query("tags") List<String> tags
+                @Query("tags") String tags
         );
     }
 

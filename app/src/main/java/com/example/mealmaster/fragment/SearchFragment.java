@@ -55,6 +55,8 @@ public class SearchFragment extends Fragment {
 
     String tagArr[];
 
+    String selectedTag;
+
     int [] arr ={R.drawable.main_course,R.drawable.side_dish,R.drawable.breakfast,R.drawable.salad,
             R.drawable.soup,R.drawable.dessert_img,R.drawable.fingerfood,R.drawable.vegetarian,
             R.drawable.gluten_free};
@@ -80,20 +82,17 @@ public class SearchFragment extends Fragment {
 
         tagArr = getResources().getStringArray(R.array.tags);
 
-        //category de recettes
+        // CATEGORIES DE RECETTES //
         category_recyclerView = rootView.findViewById(R.id.category_recyclerView);
         layoutManager = new GridLayoutManager(getContext(),2);
         category_recyclerView.setLayoutManager(layoutManager);
-        categoryAdapter = new CategoryAdapter(arr,new CategoryClickListener() {
+        categoryAdapter = new CategoryAdapter(arr,tagArr,new CategoryClickListener() {
             @Override
             public void onCategoryClick(int position) {
+                selectedTag = tagArr[position]; // Stocker le tag sélectionné
+
                 Intent intent = new Intent(getActivity(),ListOfRecipes.class);
-
-                // Pass the selected tag to the new activity
-                String selectedTag = tagArr[position];
                 intent.putExtra("selectedTag", selectedTag);
-
-                // Start the new activity
                 startActivity(intent);
             }
         });
@@ -111,13 +110,20 @@ public class SearchFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 String searchIngredients = ingredientTxt.getText().toString();
-                new SpoonacularRecipeRequest().execute(searchIngredients);
+                new SpoonacularRecipeRequest(selectedTag).execute(searchIngredients);
             }
         });
         return rootView;
     }
 
     public class SpoonacularRecipeRequest extends AsyncTask<String, Void, List<Recipe>> {
+
+        private String selectedTag;
+
+        public SpoonacularRecipeRequest(String selectedTag) {
+            this.selectedTag = selectedTag;
+        }
+
         @Override
         protected List<Recipe> doInBackground(String... searchIngredients) {
             List<Recipe> recipes = new ArrayList<>();
@@ -125,6 +131,7 @@ public class SearchFragment extends Fragment {
 
             HttpUrl.Builder urlBuilder = HttpUrl.parse("https://api.spoonacular.com/recipes/complexSearch").newBuilder();
             urlBuilder.addQueryParameter("query", searchIngredients[0]);
+            urlBuilder.addQueryParameter("type", selectedTag); // Ajout du paramètre "type"
             urlBuilder.addQueryParameter("number", String.valueOf(SEARCH_NUMBER));
             urlBuilder.addQueryParameter("apiKey", API_KEY);
             String url = urlBuilder.build().toString();
