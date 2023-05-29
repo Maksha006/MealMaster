@@ -6,6 +6,8 @@ public class User {
     public String password;
     public String email;
 
+    private boolean isFavorite;
+
     public User() {
         // Constructeur par défaut requis pour les appels de DataSnapshot.getValue(User.class)
     }
@@ -13,6 +15,7 @@ public class User {
     public User(String password, String email) {
         this.password = password;
         this.email = email;
+        this.isFavorite = false;
     }
 
     public String getPassword() {
@@ -29,6 +32,14 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public boolean isFavorite() {
+        return isFavorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        isFavorite = favorite;
     }
 }
 

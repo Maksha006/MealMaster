@@ -9,6 +9,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -25,11 +26,13 @@ import com.example.mealmaster.model.RecipeDetailsResponses;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.annotations.Nullable;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -38,36 +41,20 @@ import java.util.List;
 public class RecipesDetails extends AppCompatActivity {
 
     int id;
-
-    int idMaps;
-
-    private Recipe recipe;
-
-    private User user;
-
-    boolean isInMyFavorite = false;
-
     FirebaseAuth firebaseAuth;
 
     TextView tv_meal_summary, tv_time,tv_people,tv_mealType;
     CollapsingToolbarLayout ct_meal_name;
     ImageView im_meal_image;
     RecyclerView recycler_meal_ingredients;
-
-    RecyclerView maps_meal_recyclerView;
     SpoonacularManager manager;
     ProgressDialog dialog;
     IngredientsAdapter ingredientsAdapter;
-    MapsRecipeAdapter mapsRecipeAdapter;
 
-    RecipeDetailsResponses response;
-
-    private List<Recipe> recipeList = new ArrayList<>();
+    private RecipeDetailsResponses currentRecipe;
     FloatingActionButton fbFavorite;
 
     ImageView btnback;
-
-    String recipeId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,12 +63,7 @@ public class RecipesDetails extends AppCompatActivity {
 
         firebaseAuth = FirebaseAuth.getInstance();
 
-       /* if(firebaseAuth.getCurrentUser() != null){
-            checkIsFavorite();
-        }*/
-
         findViews();
-        //checkIsFavorite();
 
         Bundle extras = getIntent().getExtras();
 
@@ -102,6 +84,18 @@ public class RecipesDetails extends AppCompatActivity {
             dialog.show();
         }
 
+        fbFavorite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                if (user != null) {
+                    String uid = user.getUid();
+                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users");
+                    DatabaseReference favoritesRef = ref.child("Users").child(uid).child("favoris");
+                }
+            }
+        });
+
         btnback.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -110,6 +104,31 @@ public class RecipesDetails extends AppCompatActivity {
             }
         });
     }
+        private void addToFavorites() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            Log.d("Firebase", "User is logged in. Attempting to write to Firebase");
+            // Get a reference to the user's favorites in the database
+            DatabaseReference favoritesRef = FirebaseDatabase.getInstance().getReference("users")
+                    .child(user.getUid())
+                    .child("favorites");
+
+            favoritesRef.push().setValue(currentRecipe, new DatabaseReference.CompletionListener() {
+                @Override
+                public void onComplete(@Nullable DatabaseError error, @NonNull DatabaseReference ref) {
+                    if (error != null) {
+                        Log.e("Firebase", "Data could not be saved " + error.getMessage());
+                    } else {
+                        Log.d("Firebase", "Data saved successfully.");
+                    }
+                }
+            });
+        } else {
+            Log.d("Firebase", "User is not logged in.");
+            Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
     private void findViews() {
         btnback = findViewById(R.id.btnBack);

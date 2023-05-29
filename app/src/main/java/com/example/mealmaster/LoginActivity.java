@@ -18,6 +18,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -66,12 +71,12 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                perforLogin();
+                performLogin();
             }
         });
     }
 
-    private void perforLogin() {
+    private void performLogin() {
         String email = inputEmail.getText().toString();
         String password = inputPassword.getText().toString();
 
@@ -81,7 +86,7 @@ public class LoginActivity extends AppCompatActivity {
             inputPassword.setError("enter a proper password");
         } else {
             progressDialog.setMessage("please wait during Login...");
-            progressDialog.setTitle("Login...");
+            progressDialog.setTitle("Login");
             progressDialog.setCanceledOnTouchOutside(false);
             progressDialog.show();
 
@@ -89,13 +94,37 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()){
+                        progressDialog.dismiss();
 
+                        // Get the user's ID
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        String userId = user.getUid();
+
+                        // Reference to the user in the database
+                        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child("Users").child(userId);
+
+                        usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                if (snapshot.exists()) {
+                                    // The user exists in the database, do something...
+                                    sendUserToNextActivity();
+                                    Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    // The user does not exist in the database, show an error message...
+                                    Toast.makeText(LoginActivity.this, "User does not exist in the database", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                // Failed to read the user, show an error message...
+                                Toast.makeText(LoginActivity.this, "Failed to read user from the database", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    } else {
                         progressDialog.dismiss();
-                        sendUserToNextActivity();
-                        Toast.makeText(LoginActivity.this,"Login Successful",Toast.LENGTH_SHORT);
-                    }else {
-                        progressDialog.dismiss();
-                        Toast.makeText(LoginActivity.this,""+task.getException(),Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, ""+task.getException(), Toast.LENGTH_SHORT).show();
                     }
                 }
             });
