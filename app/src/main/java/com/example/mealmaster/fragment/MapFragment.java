@@ -23,6 +23,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
@@ -92,10 +93,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         gMaps.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                String tag = (String) marker.getTag();
+                List<String> tags = new ArrayList<>();
 
+                for (Map.Entry<LatLng, String> entry : countryTags.entrySet()) {
+                    LatLng latLng = entry.getKey();
+                    String tag = entry.getValue();
+
+                    if (marker.getPosition().equals(latLng)) {
+                        tags.add(tag);
+                    }
+                }
+
+                // Passer la liste de tags à l'activité MapsRecipes
                 Intent intent = new Intent(MapFragment.this.getActivity(), MapsRecipes.class);
-                intent.putExtra("CuisineType", tag);
+                intent.putStringArrayListExtra("CuisineTypes", (ArrayList<String>) tags);
                 startActivity(intent);
 
                 return false;

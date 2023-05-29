@@ -10,6 +10,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -60,20 +61,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class HomeFragment extends Fragment /*implements SharedPreferences.OnSharedPreferenceChangeListener*/ {
+public class HomeFragment extends Fragment {
 
     private Context mContext;
     private View rootView;
 
     Button btVedette;
 
-    /////
     FloatingActionButton fbFav;
     FirebaseDatabase db;
 
@@ -81,44 +82,39 @@ public class HomeFragment extends Fragment /*implements SharedPreferences.OnShar
 
     DatabaseReference databaseReference;
     Boolean fvrtChecked = false;
-    /////
-
-    /*private String getString;
-    SeekBar seekBar1,seekBar2;
-    TextView Option1,Option2;
-    TextView percent1,percent2;
-    double count1 = 1 ,count2 = 1;
-    boolean flag1 = true, flag2 = true;*/
 
     private final String API_KEY = "af3b71ca41664ff586770e97ce55e795";
 
-    private static final int SEARCH_NUMBER = 2;
+    private static final int SEARCH_NUMBER = 10;
 
 
-    // graphisme (bouton,titre,images) pour le tournoi //
+    //// graphisme (bouton,titre,images) pour le tournoi /////
     ImageView im_recipe1;
     ImageView im_recipe2;
 
+    TextView tv_recipe1;
+    TextView tv_recipe2;
+
     Button bt_vote1;
     Button bt_vote2;
+
+    ////encore des variable pour le tournoi ////
+    private Handler handler;
+    private Runnable runnable;
+   // private TournamentRecipeRequest tournamentRecipeRequest;
     ///////////////////////////////////
 
     private SliderView sliderView;
     private RandomSliderAdapter imageSliderAdapter;
-
     ProgressDialog dialog;
     SpoonacularManager manager;
-
-    private static final String SHARED_PREFERENCES_NAME = "MySharedPreferences";
-
-  /*  private static final String SEEK_BAR_1_KEY = "seekBar1";
-    private static final String SEEK_BAR_2_KEY = "seekBar2";*/
-    private List<Recipe> recipeList = new ArrayList<>();
-
     private RandomSliderAdapter.RecipeFeatureClickListener featureListener;
 
     private List<Recipe> featuredRecipeList = new ArrayList<>();
     private List<Recipe> RecipeList = new ArrayList<>();
+
+    private int displayedRecipeIndex1;
+    private int displayedRecipeIndex2;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -145,12 +141,28 @@ public class HomeFragment extends Fragment /*implements SharedPreferences.OnShar
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_home, container, false);
 
-        // image et bouton pour le tournoi //////////////////
+        // graphisme(bouton,titre,images) pour le tournoi //////////////////
         im_recipe1 = rootView.findViewById(R.id.recipeImage1);
         im_recipe2 = rootView.findViewById(R.id.recipeImage2);
+        tv_recipe1 = rootView.findViewById(R.id.option1);
+        tv_recipe2 = rootView.findViewById(R.id.option2);
         bt_vote1 = rootView.findViewById(R.id.voteButton1);
         bt_vote2 = rootView.findViewById(R.id.voteButton2);
         /////////////////////////////////////////////////////
+
+        List<Recipe> newRecipes = new ArrayList<>();
+        newRecipes.add(new Recipe("Thai Pizza", "https://spoonacular.com/recipeImages/663136-312x231.jpg", 0));
+        newRecipes.add(new Recipe("Plantain Pizza", "https://spoonacular.com/recipeImages/716300-312x231.jpg", 0));
+        newRecipes.add(new Recipe("Zucchini Pizza Boats", "https://spoonacular.com/recipeImages/665769-312x231.jpg", 0));
+        newRecipes.add(new Recipe("Pepperoni Pizza Muffins", "https://spoonacular.com/recipeImages/655698-312x231.jpg", 0));
+        newRecipes.add(new Recipe("Pittata - Pizza Frittata", "https://spoonacular.com/recipeImages/622598-312x231.jpg", 0));
+        newRecipes.add(new Recipe("Easy Cheesy Pizza Casserole", "https://spoonacular.com/recipeImages/641893-312x231.jpg", 0));
+        newRecipes.add(new Recipe("Paneer & Fig Pizza", "https://spoonacular.com/recipeImages/654523-312x231.jpg", 0));
+        newRecipes.add(new Recipe("Pesto Veggie Pizza", "https://spoonacular.com/recipeImages/655847-312x231.jpg", 0));
+
+        loadRecipesFromFirebase();
+
+        scheduleRecipeLoading();
 
         firebaseAuth = FirebaseAuth.getInstance();
         databaseReference = FirebaseDatabase.getInstance().getReference();
@@ -161,14 +173,14 @@ public class HomeFragment extends Fragment /*implements SharedPreferences.OnShar
         bt_vote1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                voteForRecipe(recipeList.get(0).getTitle());
+                voteForRecipe(newRecipes.get(displayedRecipeIndex1).getTitle());
             }
         });
 
         bt_vote2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                voteForRecipe(recipeList.get(1).getTitle());
+                voteForRecipe(newRecipes.get(displayedRecipeIndex2).getTitle());
             }
         });
 
@@ -193,13 +205,77 @@ public class HomeFragment extends Fragment /*implements SharedPreferences.OnShar
         db = FirebaseDatabase.getInstance();
         databaseReference =db.getReference();
 
-        new TournamentRecipeRequest().execute();
-
         return rootView;
     }
 
+    private class LoadRecipesTask extends AsyncTask<Void, Void, List<Recipe>> {
+        @Override
+        protected List<Recipe> doInBackground(Void... voids) {
+            List<Recipe> newRecipes = new ArrayList<>();
+            newRecipes.add(new Recipe("Thai Pizza", "https://spoonacular.com/recipeImages/663136-312x231.jpg", 0));
+            newRecipes.add(new Recipe("Plantain Pizza", "https://spoonacular.com/recipeImages/716300-312x231.jpg", 0));
+            newRecipes.add(new Recipe("Zucchini Pizza Boats", "https://spoonacular.com/recipeImages/665769-312x231.jpg", 0));
+            newRecipes.add(new Recipe("Pepperoni Pizza Muffins", "https://spoonacular.com/recipeImages/655698-312x231.jpg", 0));
+            newRecipes.add(new Recipe("Pittata - Pizza Frittata", "https://spoonacular.com/recipeImages/622598-312x231.jpg", 0));
+            newRecipes.add(new Recipe("Easy Cheesy Pizza Casserole", "https://spoonacular.com/recipeImages/641893-312x231.jpg", 0));
+            newRecipes.add(new Recipe("Paneer & Fig Pizza", "https://spoonacular.com/recipeImages/654523-312x231.jpg", 0));
+            newRecipes.add(new Recipe("Pesto Veggie Pizza", "https://spoonacular.com/recipeImages/655847-312x231.jpg", 0));
+            return newRecipes;
+        }
+
+        @Override
+        protected void onPostExecute(List<Recipe> newRecipes) {
+            onRecipesLoaded(newRecipes);
+        }
+    }
+
+    private void loadRecipesFromFirebase() {
+        new LoadRecipesTask().execute();
+    }
+
+
+    private void scheduleRecipeLoading() {
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // Exécute loadRecipesFromFirebase sur un autre thread
+                new LoadRecipesTask().execute();
+                // Programmation de l'exécution du Runnable pour qu'il se répète toutes les 5 minutes
+                handler.postDelayed(this, 5 * 60 * 1000);
+            }
+        }, 5 * 60 * 1000); // Démarrer après 5 minutes
+    }
+
+    private void onRecipesLoaded(List<Recipe> newRecipes) {
+        if (newRecipes.size() >= 2) {
+            // Choisissez deux indices aléatoires distincts
+            int index1 = new Random().nextInt(newRecipes.size());
+            int index2;
+            do {
+                index2 = new Random().nextInt(newRecipes.size());
+            } while (index1 == index2);
+
+            displayedRecipeIndex1 = index1;
+            displayedRecipeIndex2 = index2;
+
+            String nameRecipe1 = newRecipes.get(index1).getTitle();
+            String nameRecipe2 = newRecipes.get(index2).getTitle();
+
+            String imageUrl1 = newRecipes.get(index1).getImage();
+            String imageUrl2 = newRecipes.get(index2).getImage();
+
+            // Utilisez Picasso pour charger les images dans vos ImageView
+            Picasso.get().load(imageUrl1).into(im_recipe1);
+            Picasso.get().load(imageUrl2).into(im_recipe2);
+
+            tv_recipe1.setText(nameRecipe1);
+            tv_recipe2.setText(nameRecipe2);
+        }
+    }
+
     // récupération des recettes pour le tournoi //
-    public class TournamentRecipeRequest extends AsyncTask<String, Void, List<Recipe>>{
+   /* private class TournamentRecipeRequest extends AsyncTask<String, Void, List<Recipe>>{
         @Override
         protected List<Recipe> doInBackground(String... tournamentRecipes) {
             List<Recipe> VoteRecipes = new ArrayList<>();
@@ -231,10 +307,29 @@ public class HomeFragment extends Fragment /*implements SharedPreferences.OnShar
 
                     // Insert the recipe to Firebase
                     DatabaseReference recipesRef = FirebaseDatabase.getInstance().getReference("recipes");
-                   // String recipeId = recipesRef.push().getKey(); // Generates a unique ID for the new recipe
 
                     // Saves the new recipe in the database
-                    recipesRef.child(recipeKey).setValue(recipe);
+                    recipesRef.child(recipeKey).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DataSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                DataSnapshot recipeSnapshot = task.getResult();
+                                if (!recipeSnapshot.exists()) {
+                                    // La recette n'existe pas, sauvegarder dans Firebase
+                                    recipesRef.child(recipeKey).setValue(recipe);
+                                } else {
+                                    // La recette existe déjà, récupérer ses votes depuis Firebase
+                                    Integer votes = recipeSnapshot.child("votes").getValue(Integer.class);
+                                    if (votes != null) {
+                                        recipe.setVote(votes);
+                                    }
+                                }
+                            } else {
+                                // Une erreur s'est produite lors de la récupération des données Firebase
+                                Log.e("HomeFragment", "Firebase data retrieval failed: " + task.getException());
+                            }
+                        }
+                    });
 
                     VoteRecipes.add(recipe);
                 }
@@ -248,22 +343,46 @@ public class HomeFragment extends Fragment /*implements SharedPreferences.OnShar
     @Override
         protected void onPostExecute(List<Recipe> recipes) {
             super.onPostExecute(recipes);
-            if (recipes != null && recipes.size() >= 2){
+
+        List<Recipe> newRecipes = new ArrayList<>();
+        newRecipes.add(new Recipe("Thai Pizza", "https://spoonacular.com/recipeImages/663136-312x231.jpg", 0));
+        newRecipes.add(new Recipe("Plantain Pizza", "https://spoonacular.com/recipeImages/716300-312x231.jpg", 0));
+        newRecipes.add(new Recipe("Zucchini Pizza Boats", "https://spoonacular.com/recipeImages/665769-312x231.jpg", 0));
+        newRecipes.add(new Recipe("Pepperoni Pizza Muffins", "https://spoonacular.com/recipeImages/655698-312x231.jpg", 0));
+        newRecipes.add(new Recipe("Pittata - Pizza Frittata", "https://spoonacular.com/recipeImages/622598-312x231.jpg", 0));
+        newRecipes.add(new Recipe("Easy Cheesy Pizza Casserole", "https://spoonacular.com/recipeImages/641893-312x231.jpg", 0));
+        newRecipes.add(new Recipe("Paneer & Fig Pizza", "https://spoonacular.com/recipeImages/654523-312x231.jpg", 0));
+        newRecipes.add(new Recipe("Pesto Veggie Pizza", "https://spoonacular.com/recipeImages/655847-312x231.jpg", 0));
+
+
+        if (recipes != null && recipes.size() >= 2){
                 recipeList.clear();
                 recipeList.addAll(recipes);
 
-                String nameRecipe1 = recipeList.get(0).getTitle();
-                String nameRecipe2 = recipeList.get(1).getTitle();
+                DatabaseReference recipesRef = FirebaseDatabase.getInstance().getReference("recipes");
 
-                String imageUrl1 = recipeList.get(0).getImage(); // obtenir l'URL de la première image
-                String imageUrl2 = recipeList.get(1).getImage(); // obtenir l'URL de la deuxième image
+                for (Recipe recipe : newRecipes) {
+                    String recipeKey = recipe.getTitle().replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
 
-                // Utilisez Picasso pour charger les images dans vos ImageView
+                    // Ajoutez la recette à Firebase en utilisant le nom de la recette comme clé
+                    recipesRef.child(recipeKey).setValue(recipe);
+                }
+
+                String nameRecipe1 = newRecipes.get(5).getTitle();
+                String nameRecipe2 = newRecipes.get(6).getTitle();
+
+                String imageUrl1 = newRecipes.get(5).getImage(); // obtenir l'URL de la première image
+                String imageUrl2 = newRecipes.get(6).getImage(); // obtenir l'URL de la deuxième image
+
+                // Utilisez Picasso pour charger les images dans mes ImageView
                 Picasso.get().load(imageUrl1).into(im_recipe1);
                 Picasso.get().load(imageUrl2).into(im_recipe2);
+
+                tv_recipe1.setText(nameRecipe1);
+                tv_recipe2.setText(nameRecipe2);
             }
         }
-    }
+    }*/
 
     private void voteForRecipe(String recipeName) {
 
@@ -347,71 +466,6 @@ public class HomeFragment extends Fragment /*implements SharedPreferences.OnShar
             Toast.makeText(mContext,message, Toast.LENGTH_SHORT);
         }
     };
-
-  /*  private void calculatePercent() {
-
-        double total = count1 + count2;
-        double recipePercent1 = (count1/total)*100;
-        double recipePercent2 = (count2/total)*100;
-
-        percent1.setText(String.format("%.2f",recipePercent1));
-        seekBar1.setProgress((int) recipePercent1);
-
-        percent2.setText(String.format("%.2f",recipePercent2));
-        seekBar2.setProgress((int) recipePercent2);
-    }*/
-
-
-  /*  private SeekBar.OnSeekBarChangeListener seekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
-        @Override
-        public void onProgressChanged(SeekBar seekBar, int progress, boolean b) {
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            if (seekBar.getId() == R.id.seek_bar1) {
-                editor.putInt("seekBar1Value", progress);
-            } else if (seekBar.getId() == R.id.seek_bar2) {
-                editor.putInt("seekBar2Value", progress);
-            }
-            editor.apply();
-        }
-
-        @Override
-        public void onStartTrackingTouch(SeekBar seekBar) {}
-
-        @Override
-        public void onStopTrackingTouch(SeekBar seekBar) {}
-    };
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.e("METAPX","onDestroy is CALLED");
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-        if (s.equals("seekBar1Value")) {
-            SeekBar seekBar1 = rootView.findViewById(R.id.seek_bar1);
-            seekBar1.setProgress(sharedPreferences.getInt(s, 0));
-        } else if (s.equals("seekBar2Value")) {
-            SeekBar seekBar2 = rootView.findViewById(R.id.seek_bar2);
-            seekBar2.setProgress(sharedPreferences.getInt(s, 0));
-        }
-    }*/
 
     private final RecipeClickListener recipeClickListener = new RecipeClickListener() {
         @Override

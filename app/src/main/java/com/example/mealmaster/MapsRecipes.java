@@ -46,8 +46,8 @@ public class MapsRecipes extends AppCompatActivity {
 
         findViewsById();
 
-        String cuisineType = getIntent().getStringExtra("CuisineType");
-        new SpoonacularRecipeRequest().execute(cuisineType);
+        List<String> cuisineTypes = getIntent().getStringArrayListExtra("CuisineTypes");
+        new SpoonacularRecipeRequest().execute(cuisineTypes.toArray(new String[0]));
 
         dialog = new ProgressDialog(this);
         dialog.setTitle("Loading...");
@@ -72,7 +72,12 @@ public class MapsRecipes extends AppCompatActivity {
             HttpUrl.Builder urlBuilder = HttpUrl.parse("https://api.spoonacular.com/recipes/random").newBuilder();
             urlBuilder.addQueryParameter("apiKey", API_KEY);
             urlBuilder.addQueryParameter("number", "25");
-            urlBuilder.addQueryParameter("cuisine", tags[0]);
+
+            // Ajoutez tous les tags à la requête
+            for (String tag : tags) {
+                urlBuilder.addQueryParameter("cuisine", tag);
+            }
+
             String url = urlBuilder.build().toString();
 
             Request request = new Request.Builder()

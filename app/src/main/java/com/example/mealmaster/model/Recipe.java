@@ -86,4 +86,12 @@ public class Recipe implements Serializable {
     public void setFavorite(boolean favorite) {
         isFavorite = favorite;
     }
+
+    public int getVote() {
+        return vote;
+    }
+
+    public void setVote(int vote) {
+        this.vote = vote;
+    }
 }
