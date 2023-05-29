@@ -107,6 +107,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 // Passer la liste de tags à l'activité MapsRecipes
                 Intent intent = new Intent(MapFragment.this.getActivity(), MapsRecipes.class);
                 intent.putStringArrayListExtra("CuisineTypes", (ArrayList<String>) tags);
+                intent.putExtra("CountryName", countryTags.get(marker.getPosition())); // Ajoutez cette ligne pour passer le nom du pays
                 startActivity(intent);
 
                 return false;

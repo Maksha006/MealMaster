@@ -48,6 +48,7 @@ public class MapsRecipes extends AppCompatActivity {
 
         List<String> cuisineTypes = getIntent().getStringArrayListExtra("CuisineTypes");
         new SpoonacularRecipeRequest().execute(cuisineTypes.toArray(new String[0]));
+        updateTitle(cuisineTypes);
 
         dialog = new ProgressDialog(this);
         dialog.setTitle("Loading...");
@@ -60,6 +61,21 @@ public class MapsRecipes extends AppCompatActivity {
             layoutManager = new GridLayoutManager(this,2);
             maps_recyclerView.setLayoutManager(layoutManager);
         }
+    }
+
+    private void updateTitle(List<String> cuisineTypes) {
+        StringBuilder tagsBuilder = new StringBuilder();
+        for (String tag : cuisineTypes) {
+            tagsBuilder.append(tag).append(", ");
+        }
+
+        String tagsString = tagsBuilder.toString();
+        if (tagsString.endsWith(", ")) {
+            tagsString = tagsString.substring(0, tagsString.length() - 2);
+        }
+
+        TextView textViewCountry = findViewById(R.id.textView2);
+        textViewCountry.setText(tagsString); // Mettez à jour le titre avec les tags
     }
 
     public class SpoonacularRecipeRequest extends AsyncTask<String, Void, List<Recipe>> {
