@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.mealmaster.Listeners.RecipeClickListener;
 import com.example.mealmaster.R;
 import com.example.mealmaster.model.Recipe;
 import com.squareup.picasso.Picasso;
@@ -22,8 +23,12 @@ public class SearchRecipeAdapter extends RecyclerView.Adapter<SearchRecipeAdapte
     Context context;
     private List<Recipe> recipes;
 
-    public SearchRecipeAdapter(List<Recipe> recipes) {
+    RecipeClickListener listener;
+
+    public SearchRecipeAdapter(Context context,List<Recipe> recipes,RecipeClickListener listener) {
+        this.context = context;
         this.recipes = recipes;
+        this.listener = listener;
     }
 
     @NonNull
@@ -44,6 +49,13 @@ public class SearchRecipeAdapter extends RecyclerView.Adapter<SearchRecipeAdapte
         } else {
             Picasso.get().load(recipes.get(position).getImage()).into(holder.image_food); // mettre une image de placeholder si l'url de l'image est vide ou nulle
         }
+
+        holder.search_list_container.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                listener.OnRecipeClicked(String.valueOf(recipes.get(holder.getAdapterPosition()).getId()));
+            }
+        });
     }
 
     @Override
@@ -55,14 +67,14 @@ public class SearchRecipeAdapter extends RecyclerView.Adapter<SearchRecipeAdapte
 
         CardView search_list_container;
 
-        ImageView category_list_contenair;
+       // ImageView category_list_contenair;
         TextView DishName_title;
         ImageView image_food;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             search_list_container = itemView.findViewById(R.id.search_list_container);
-            category_list_contenair = itemView.findViewById(R.id.category_list_container);
+            //category_list_contenair = itemView.findViewById(R.id.category_list_container);
             DishName_title = itemView.findViewById(R.id.Dish_title);
             image_food = itemView.findViewById(R.id.picture_food);
         }

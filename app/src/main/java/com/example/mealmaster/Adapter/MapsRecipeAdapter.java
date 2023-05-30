@@ -22,11 +22,14 @@ import java.util.List;
 
 public class MapsRecipeAdapter extends RecyclerView.Adapter<MapsRecipeAdapter.ViewHolder>{
 
+    Context context;
     private List<Recipe> list;
     RecipeClickListener listener;
 
-    public MapsRecipeAdapter(List<Recipe> list) {
+    public MapsRecipeAdapter(Context context,List<Recipe> list,RecipeClickListener listener) {
+        this.context = context;
         this.list = list;
+        this.listener = listener;
     }
 
     @NonNull
@@ -43,19 +46,12 @@ public class MapsRecipeAdapter extends RecyclerView.Adapter<MapsRecipeAdapter.Vi
         Recipe recipe = list.get(position);
 
 
-        Picasso.get().load(list.get(position).getImage()).into(holder.maps_dish_image);
+        Picasso.get().load(recipe.getImage()).into(holder.maps_dish_image);
         holder.maps_dish_name.setText(recipe.getTitle());
         holder.maps_dish_name.setSelected(true);
 
         holder.itemView.setOnClickListener(v -> {
-            Context context = v.getContext();
-            Intent intent = new Intent(context, RecipesDetails.class);
-
-            // Passez l'ID de la recette à votre activité de détails.
-            // Assurez-vous que votre classe Recipe a une méthode getId().
-            // Remarque : cela suppose que l'ID de la recette est un String. Si c'est un int ou un autre type de données, veuillez modifier en conséquence.
-            intent.putExtra("Mapsid", recipe.getId());
-            context.startActivity(intent);
+            listener.OnRecipeClicked(String.valueOf(list.get(holder.getAdapterPosition()).getId()));
         });
     }
 

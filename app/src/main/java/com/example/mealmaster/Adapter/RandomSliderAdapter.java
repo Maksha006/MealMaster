@@ -70,14 +70,15 @@ public class RandomSliderAdapter extends SliderViewAdapter<SliderAdapterVH> {
                 // Mettre à jour l'attribut isFavorite de la recette
                 recipe.setFavorite(!recipe.isFavorite());
                 firebaseManager.saveRecipe(recipe);
+
+                // Mettre à jour l'icône du cœur dans la vue
+                if (recipe.isFavorite()) {
+                    viewHolder.btn_like.setImageResource(R.drawable.ic_favorite);
+                } else {
+                    viewHolder.btn_like.setImageResource(R.drawable.ic_favoritewhite);
+                }
             }
         });
-
-        if (recipe.isFavorite()) {
-            viewHolder.btn_like.setImageResource(R.drawable.ic_favorite);
-        } else {
-            viewHolder.btn_like.setImageResource(R.drawable.ic_favoritewhite);
-        }
     }
 
     @Override
@@ -100,4 +101,3 @@ class SliderAdapterVH extends SliderViewAdapter.ViewHolder{
         btn_like = itemView.findViewById(R.id.btn_like);
     }
 }
-

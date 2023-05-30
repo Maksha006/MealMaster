@@ -5,12 +5,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.mealmaster.Adapter.CategoryRecipeAdapter;
+import com.example.mealmaster.Listeners.RecipeClickListener;
 import com.example.mealmaster.Listeners.SpoonacularResponseListener;
 
 import java.util.List;
@@ -55,13 +57,21 @@ public class ListOfRecipes extends AppCompatActivity {
             recyclerView = findViewById(R.id.recycler_search);
             recyclerView.setHasFixedSize(true);
             recyclerView.setLayoutManager(new LinearLayoutManager(ListOfRecipes.this));
-            randomCategoryRecipesAdapter = new CategoryRecipeAdapter(response.recipes);
+            randomCategoryRecipesAdapter = new CategoryRecipeAdapter(ListOfRecipes.this,response.recipes,recipeClickListener);
             recyclerView.setAdapter(randomCategoryRecipesAdapter);
         }
-
         @Override
         public void didError(String message) {
             Toast.makeText(ListOfRecipes.this,message, Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    private final RecipeClickListener recipeClickListener = new RecipeClickListener() {
+        @Override
+        public void OnRecipeClicked(String id) {
+            Intent intent = new Intent(ListOfRecipes.this, RecipesDetails.class)
+                    .putExtra("recipeId",id);
+            startActivity(intent);
         }
     };
 

@@ -1,6 +1,7 @@
 package com.example.mealmaster;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mealmaster.Adapter.SearchRecipeAdapter;
+import com.example.mealmaster.Listeners.RecipeClickListener;
 import com.example.mealmaster.model.Recipe;
 
 import org.json.JSONArray;
@@ -31,7 +33,7 @@ import okhttp3.Response;
 
 public class SearchResultsActivity extends AppCompatActivity {
 
-    private static final String API_KEY = "af3b71ca41664ff586770e97ce55e795";
+    private static final String API_KEY = "zRMMlpwqL9NvB6uMn1m8scsccUxIesRv";
 
     private static final int SEARCH_NUMBER = 25;
     androidx.appcompat.widget.SearchView searchView;
@@ -39,6 +41,8 @@ public class SearchResultsActivity extends AppCompatActivity {
     TextView tv_meal_name;
     ProgressDialog dialog;
     RecyclerView recyclerView;
+
+    RecipeClickListener clickListener;
 
     private List<Recipe> recipeList = new ArrayList<>();
 
@@ -72,7 +76,7 @@ public class SearchResultsActivity extends AppCompatActivity {
         List<Recipe> recipes = (List<Recipe>) getIntent().getSerializableExtra("recipes");
         if (recipes != null) {
             dialog.dismiss();
-            SearchRecipeAdapter adapter = new SearchRecipeAdapter(recipes);
+            SearchRecipeAdapter adapter = new SearchRecipeAdapter(SearchResultsActivity.this,recipes,recipeClickListener);
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
             recyclerView.setAdapter(adapter);
         }
@@ -85,10 +89,10 @@ public class SearchResultsActivity extends AppCompatActivity {
             List<Recipe> recipes = new ArrayList<>();
             OkHttpClient client = new OkHttpClient();
 
-            HttpUrl.Builder urlBuilder = HttpUrl.parse("https://api.spoonacular.com/recipes/complexSearch").newBuilder();
+            HttpUrl.Builder urlBuilder = HttpUrl.parse("https://api.apilayer.com/spoonacular/recipes/complexSearch").newBuilder();
             urlBuilder.addQueryParameter("query", searchIngredients[0]);
             urlBuilder.addQueryParameter("number", String.valueOf(SEARCH_NUMBER));
-            urlBuilder.addQueryParameter("apiKey", API_KEY);
+            urlBuilder.addQueryParameter("apikey", API_KEY);
             String url = urlBuilder.build().toString();
 
             Request request = new Request.Builder()
@@ -124,7 +128,7 @@ public class SearchResultsActivity extends AppCompatActivity {
                 recipeList.clear();
                 recipeList.addAll(recipes);
                 recyclerView = findViewById(R.id.recipe_recycler_view);
-                SearchRecipeAdapter adapter = new SearchRecipeAdapter(recipeList);
+                SearchRecipeAdapter adapter = new SearchRecipeAdapter(SearchResultsActivity.this,recipes,recipeClickListener);
                 recyclerView.setLayoutManager(new LinearLayoutManager(SearchResultsActivity.this));
                 recyclerView.setAdapter(adapter);
             }
@@ -137,4 +141,13 @@ public class SearchResultsActivity extends AppCompatActivity {
         im_meal_image = findViewById(R.id.picture_food);
         tv_meal_name = findViewById(R.id.Dish_title);
     }
+
+    private final RecipeClickListener recipeClickListener = new RecipeClickListener() {
+        @Override
+        public void OnRecipeClicked(String id) {
+            Intent intent = new Intent(SearchResultsActivity.this, RecipesDetails.class)
+                    .putExtra("searchRecipeId",id);
+            startActivity(intent);
+        }
+    };
 }

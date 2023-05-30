@@ -57,7 +57,7 @@ public class MapsRecipes extends AppCompatActivity {
         List<Recipe> recipes = (List<Recipe>) getIntent().getSerializableExtra("recipes");
         if (recipes != null) {
             dialog.dismiss();
-            mapsRecipeAdapter = new MapsRecipeAdapter(recipes);
+            mapsRecipeAdapter = new MapsRecipeAdapter(MapsRecipes.this,recipes,recipeClickListener);
             layoutManager = new GridLayoutManager(this,2);
             maps_recyclerView.setLayoutManager(layoutManager);
         }
@@ -129,7 +129,7 @@ public class MapsRecipes extends AppCompatActivity {
                 recipeList.clear();
                 recipeList.addAll(recipes);
                 maps_recyclerView = findViewById(R.id.maps_recyclerView);
-                mapsRecipeAdapter = new MapsRecipeAdapter(recipeList);
+                mapsRecipeAdapter = new MapsRecipeAdapter(MapsRecipes.this,recipeList,recipeClickListener);
                 layoutManager = new GridLayoutManager(MapsRecipes.this,2);
                 maps_recyclerView.setLayoutManager(layoutManager);
                 maps_recyclerView.setAdapter(mapsRecipeAdapter);
@@ -142,4 +142,13 @@ public class MapsRecipes extends AppCompatActivity {
         im_maps_meal_image = findViewById(R.id.maps_dish_image);
         tv_maps_meal_name = findViewById(R.id.maps_dish_name);
     }
+
+    private final RecipeClickListener recipeClickListener = new RecipeClickListener() {
+        @Override
+        public void OnRecipeClicked(String id) {
+            Intent intent = new Intent(MapsRecipes.this, RecipesDetails.class)
+                    .putExtra("MapsRecipeId",id);
+            startActivity(intent);
+        }
+    };
 }

@@ -43,7 +43,7 @@ import okhttp3.Response;
 public class SearchFragment extends Fragment {
 
     private View rootView;
-    private static final String API_KEY = "af3b71ca41664ff586770e97ce55e795";
+    private static final String API_KEY = "zRMMlpwqL9NvB6uMn1m8scsccUxIesRv";
     private static final int SEARCH_NUMBER = 25;
     private EditText ingredientTxt;
     private Button submitBtn;
@@ -129,11 +129,11 @@ public class SearchFragment extends Fragment {
             List<Recipe> recipes = new ArrayList<>();
             OkHttpClient client = new OkHttpClient();
 
-            HttpUrl.Builder urlBuilder = HttpUrl.parse("https://api.spoonacular.com/recipes/complexSearch").newBuilder();
+            HttpUrl.Builder urlBuilder = HttpUrl.parse("https://api.apilayer.com/spoonacular/recipes/complexSearch").newBuilder();
             urlBuilder.addQueryParameter("query", searchIngredients[0]);
             urlBuilder.addQueryParameter("type", selectedTag); // Ajout du paramètre "type"
             urlBuilder.addQueryParameter("number", String.valueOf(SEARCH_NUMBER));
-            urlBuilder.addQueryParameter("apiKey", API_KEY);
+            urlBuilder.addQueryParameter("apikey", API_KEY);
             String url = urlBuilder.build().toString();
 
             Request request = new Request.Builder()

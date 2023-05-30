@@ -177,6 +177,12 @@
                 android:text="Résumé de la recette"
                 android:textSize="15sp" />
 
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_dish_instructons"
+                android:layout_margin="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

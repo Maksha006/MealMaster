@@ -65,6 +65,7 @@ public class RegisterActivity extends AppCompatActivity {
         String email = inputEmail.getText().toString();
         String password = inputPassword.getText().toString();
         String confirmPassword = inputConfPassword.getText().toString();
+        Boolean isFavorite = false;
 
         if (email.matches(emailPattern)){
             inputEmail.setError("Enter a correct email please");

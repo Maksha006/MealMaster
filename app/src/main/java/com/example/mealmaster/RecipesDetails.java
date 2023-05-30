@@ -41,12 +41,16 @@ import java.util.List;
 public class RecipesDetails extends AppCompatActivity {
 
     int id;
+
+    int searchId;
+
     FirebaseAuth firebaseAuth;
 
     TextView tv_meal_summary, tv_time,tv_people,tv_mealType;
     CollapsingToolbarLayout ct_meal_name;
     ImageView im_meal_image;
-    RecyclerView recycler_meal_ingredients;
+    RecyclerView recycler_meal_ingredients,recycler_dish_instructons;
+
     SpoonacularManager manager;
     ProgressDialog dialog;
     IngredientsAdapter ingredientsAdapter;
@@ -65,15 +69,25 @@ public class RecipesDetails extends AppCompatActivity {
 
         findViews();
 
+       // String listId = getIntent().getStringExtra("recipeId");
+
+       // searchId = Integer.parseInt(listId);
+
         Bundle extras = getIntent().getExtras();
 
         if (extras != null) {
-            String mapIdString = extras.getString("Mapsid");
+            String mapIdString = extras.getString("MapsRecipeId");
             String idString = extras.getString("id");
+            String searchId = extras.getString("recipeId");
+            String searchListId = extras.getString("searchRecipeId");
             if (mapIdString != null) {
                 id = Integer.parseInt(mapIdString);
             }else if (idString != null) {
                 id = Integer.parseInt(idString);
+            } else if (searchId != null) {
+                id =  Integer.parseInt(searchId);
+            }else if (searchListId != null) {
+                id =  Integer.parseInt(searchListId);
             }else {
                 Toast.makeText(this, "aucun id n'est présent", Toast.LENGTH_SHORT).show();
             }
@@ -87,12 +101,7 @@ public class RecipesDetails extends AppCompatActivity {
         fbFavorite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                if (user != null) {
-                    String uid = user.getUid();
-                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users");
-                    DatabaseReference favoritesRef = ref.child("Users").child(uid).child("favoris");
-                }
+                addToFavorites();
             }
         });
 
@@ -104,12 +113,12 @@ public class RecipesDetails extends AppCompatActivity {
             }
         });
     }
-        private void addToFavorites() {
+    private void addToFavorites() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             Log.d("Firebase", "User is logged in. Attempting to write to Firebase");
             // Get a reference to the user's favorites in the database
-            DatabaseReference favoritesRef = FirebaseDatabase.getInstance().getReference("users")
+            DatabaseReference favoritesRef = FirebaseDatabase.getInstance().getReference("Users")
                     .child(user.getUid())
                     .child("favorites");
 
@@ -140,6 +149,7 @@ public class RecipesDetails extends AppCompatActivity {
         tv_meal_summary = findViewById(R.id.tvSummary);
         im_meal_image = findViewById(R.id.meal_image);
         recycler_meal_ingredients = findViewById(R.id.meal_ingredients);
+        recycler_dish_instructons = findViewById(R.id.recycler_dish_instructons);
     }
 
     private final RecipeDetailsListener recipeDetailsListener = new RecipeDetailsListener() {

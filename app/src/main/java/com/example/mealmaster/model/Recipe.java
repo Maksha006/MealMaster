@@ -43,6 +43,9 @@ public class Recipe implements Serializable {
         this.vote = vote;
     }
 
+    public Recipe(String recipeName) {
+    }
+
     public boolean isFeatured() {
         return featured;
     }

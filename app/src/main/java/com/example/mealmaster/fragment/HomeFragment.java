@@ -101,7 +101,7 @@ public class HomeFragment extends Fragment {
     ////encore des variable pour le tournoi ////
     private Handler handler;
     private Runnable runnable;
-   // private TournamentRecipeRequest tournamentRecipeRequest;
+    // private TournamentRecipeRequest tournamentRecipeRequest;
     ///////////////////////////////////
 
     private SliderView sliderView;
@@ -193,10 +193,10 @@ public class HomeFragment extends Fragment {
         btVedette = rootView.findViewById(R.id.btn_vedette);
 
         List<String> recipeIds = new ArrayList<>();
-        recipeIds.add("149199");
-        recipeIds.add("157375");
-        recipeIds.add("631741");
-        recipeIds.add("631748");
+        recipeIds.add("610281");
+        recipeIds.add("610281");
+        recipeIds.add("610281");
+        recipeIds.add("610281");
 
         setMultipleRecipesAsFeatured(recipeIds);
 
@@ -342,7 +342,6 @@ public class HomeFragment extends Fragment {
             imageSliderAdapter = new RandomSliderAdapter(mContext,response.recipes,recipeClickListener,featureListener);
             sliderView.setSliderAdapter(imageSliderAdapter);
 
-
             db = FirebaseDatabase.getInstance();
             databaseReference = db.getReference().child("recipes");
             for (Recipe recipe : response.recipes) {
@@ -363,7 +362,7 @@ public class HomeFragment extends Fragment {
             Intent intent = new Intent(getActivity(), RecipesDetails.class)
                     .putExtra("id",id);
             startActivity(intent);
-            //Toast.makeText(getContext(),id,Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(),id,Toast.LENGTH_SHORT).show();
         }
     };
 

@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.mealmaster.Listeners.RecipeClickListener;
 import com.example.mealmaster.R;
 import com.example.mealmaster.model.Recipe;
 import com.squareup.picasso.Picasso;
@@ -22,8 +23,12 @@ public class CategoryRecipeAdapter extends RecyclerView.Adapter<CategoryRecipeAd
     Context context;
     private List<Recipe> recipes;
 
-    public CategoryRecipeAdapter(List<Recipe> recipes) {
+    RecipeClickListener listener;
+
+    public CategoryRecipeAdapter(Context context,List<Recipe> recipes,RecipeClickListener listener) {
+        this.context = context;
         this.recipes = recipes;
+        this.listener = listener;
     }
 
     @NonNull
@@ -44,6 +49,13 @@ public class CategoryRecipeAdapter extends RecyclerView.Adapter<CategoryRecipeAd
         } else {
             Picasso.get().load(recipes.get(position).getImage()).into(holder.image_food); // mettre une image de placeholder si l'url de l'image est vide ou nulle
         }
+
+        holder.category_list_container.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                listener.OnRecipeClicked(String.valueOf(recipes.get(holder.getAdapterPosition()).getId()));
+            }
+        });
     }
 
     @Override
