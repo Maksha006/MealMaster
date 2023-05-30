@@ -40,6 +40,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -310,15 +311,18 @@ public class HomeFragment extends Fragment {
         @Override
         public void onRecipeFeatureClick(String recipeId) {
             FirebaseManager firebaseManager = new FirebaseManager();
-            firebaseManager.setRecipe(recipeId);
-
-            // Mettre à jour l'attribut isFavorite de la recette
-            for (Recipe recipe : RecipeList) {
-                if (String.valueOf(recipe.getId()).equals(recipeId)) {
-                    recipe.setFavorite(!recipe.isFavorite());
-                    firebaseManager.saveRecipe(recipe);
-                    break;
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user != null) {
+                // Mettre à jour l'attribut isFavorite de la recette
+                for (Recipe recipe : RecipeList) {
+                    if (String.valueOf(recipe.getId()).equals(recipeId)) {
+                        recipe.setFavorite(!recipe.isFavorite());
+                        firebaseManager.saveUserFavoriteRecipe(user.getUid(), recipeId, recipe);
+                        break;
+                    }
                 }
+            } else {
+                // Handle scenario where user is not logged in
             }
         }
     };

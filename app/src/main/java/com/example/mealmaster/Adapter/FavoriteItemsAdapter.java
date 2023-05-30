@@ -63,8 +63,6 @@ public class FavoriteItemsAdapter extends RecyclerView.Adapter<FavoriteItemsAdap
         ImageView favoris_img;
         TextView textView_favoris;
         Button fvrtBt;
-        DatabaseReference favoriteRef;
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);

@@ -36,5 +36,23 @@ public class FirebaseManager {
             userRef.setValue(true);
         }
     }
+
+    public void saveUserFavoriteRecipe(String userId, String recipeId, Recipe recipe) {
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users")
+                .child(userId)
+                .child("favorites")
+                .child(recipeId);
+
+        userRef.setValue(recipe);
+    }
+
+    public void removeUserFavoriteRecipe(String userId, String recipeId) {
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users")
+                .child(userId)
+                .child("favorites")
+                .child(recipeId);
+
+        userRef.removeValue();
+    }
 }
 

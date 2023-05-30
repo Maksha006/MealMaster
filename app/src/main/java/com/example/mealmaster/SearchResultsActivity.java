@@ -15,9 +15,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.mealmaster.Adapter.RandomSliderAdapter;
 import com.example.mealmaster.Adapter.SearchRecipeAdapter;
 import com.example.mealmaster.Listeners.RecipeClickListener;
 import com.example.mealmaster.model.Recipe;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,6 +49,8 @@ public class SearchResultsActivity extends AppCompatActivity {
     RecyclerView recyclerView;
 
     RecipeClickListener clickListener;
+
+    private SearchRecipeAdapter.RecipeFeatureClickListener featureListener;
 
     private List<Recipe> recipeList = new ArrayList<>();
 
@@ -77,7 +84,7 @@ public class SearchResultsActivity extends AppCompatActivity {
         List<Recipe> recipes = (List<Recipe>) getIntent().getSerializableExtra("recipes");
         if (recipes != null) {
             dialog.dismiss();
-            SearchRecipeAdapter adapter = new SearchRecipeAdapter(SearchResultsActivity.this,recipes,recipeClickListener);
+            SearchRecipeAdapter adapter = new SearchRecipeAdapter(SearchResultsActivity.this,recipes,recipeClickListener,featureListener);
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
             recyclerView.setAdapter(adapter);
         }
@@ -130,7 +137,7 @@ public class SearchResultsActivity extends AppCompatActivity {
                 recipeList.clear();
                 recipeList.addAll(recipes);
                 recyclerView = findViewById(R.id.recipe_recycler_view);
-                SearchRecipeAdapter adapter = new SearchRecipeAdapter(SearchResultsActivity.this,recipes,recipeClickListener);
+                SearchRecipeAdapter adapter = new SearchRecipeAdapter(SearchResultsActivity.this,recipes,recipeClickListener,featureListener);
                 recyclerView.setLayoutManager(new LinearLayoutManager(SearchResultsActivity.this));
                 recyclerView.setAdapter(adapter);
             }
@@ -151,6 +158,31 @@ public class SearchResultsActivity extends AppCompatActivity {
                     .putExtra("searchRecipeId",id);
             Log.d("Recipe",id);
             startActivity(intent);
+        }
+    };
+
+    private RandomSliderAdapter.RecipeFeatureClickListener featureFavoriteListener = new RandomSliderAdapter.RecipeFeatureClickListener() {
+        @Override
+        public void onRecipeFeatureClick(String recipeId) {
+            FirebaseManager firebaseManager = new FirebaseManager();
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user != null) {
+                // Mettre à jour l'attribut isFavorite de la recette
+                for (Recipe recipe : recipeList) {
+                    if (String.valueOf(recipe.getId()).equals(recipeId)) {
+                        if (recipe.isFavorite()) {
+                            recipe.setFavorite(false);
+                            firebaseManager.removeUserFavoriteRecipe(user.getUid(), recipeId);
+                        } else {
+                            recipe.setFavorite(true);
+                            firebaseManager.saveUserFavoriteRecipe(user.getUid(), recipeId, recipe);
+                        }
+                        break;
+                    }
+                }
+            } else {
+                // Handle scenario where user is not logged in
+            }
         }
     };
 }
