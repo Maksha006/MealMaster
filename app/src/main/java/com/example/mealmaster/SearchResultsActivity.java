@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import androidx.appcompat.widget.SearchView;
@@ -107,9 +108,10 @@ public class SearchResultsActivity extends AppCompatActivity {
 
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject recipeJson = jsonArray.getJSONObject(i);
+                    String id = recipeJson.getString("id");
                     String name = recipeJson.getString("title");
                     String imageURL = recipeJson.getString("image");
-                    Recipe recipe = new Recipe(name, imageURL);
+                    Recipe recipe = new Recipe(Integer.parseInt(id),name, imageURL);
                     recipes.add(recipe);
                 }
             } catch (IOException e) {
@@ -147,6 +149,7 @@ public class SearchResultsActivity extends AppCompatActivity {
         public void OnRecipeClicked(String id) {
             Intent intent = new Intent(SearchResultsActivity.this, RecipesDetails.class)
                     .putExtra("searchRecipeId",id);
+            Log.d("Recipe",id);
             startActivity(intent);
         }
     };

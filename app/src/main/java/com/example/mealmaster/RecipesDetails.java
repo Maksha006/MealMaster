@@ -107,7 +107,7 @@ public class RecipesDetails extends AppCompatActivity {
         fbFavorite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createEmptyFavoritesNode();
+                addToFavorites();
             }
         });
 
@@ -184,9 +184,7 @@ public class RecipesDetails extends AppCompatActivity {
             recycler_meal_ingredients.setLayoutManager(new LinearLayoutManager(RecipesDetails.this,LinearLayoutManager.HORIZONTAL,false));
             ingredientsAdapter = new IngredientsAdapter(RecipesDetails.this, response.extendedIngredients);
             recycler_meal_ingredients.setAdapter(ingredientsAdapter);
-
         }
-
         @Override
         public void didError(String message) {
             Toast.makeText(RecipesDetails.this,message,Toast.LENGTH_SHORT).show();
@@ -200,9 +198,7 @@ public class RecipesDetails extends AppCompatActivity {
             recycler_dish_instructons.setLayoutManager(new LinearLayoutManager(RecipesDetails.this,LinearLayoutManager.VERTICAL,false));
             instructionsAdapter = new InstructionsAdapter(RecipesDetails.this,response);
             recycler_dish_instructons.setAdapter(instructionsAdapter);
-
         }
-
         @Override
         public void didError(String message) {
             Toast.makeText(RecipesDetails.this,message,Toast.LENGTH_SHORT).show();

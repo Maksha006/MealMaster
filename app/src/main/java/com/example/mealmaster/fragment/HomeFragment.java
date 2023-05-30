@@ -184,10 +184,6 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        /*manager = new SpoonacularManager(mContext);
-        manager.getSpoonacularApi(spoonacularResponseListener);
-        dialog.show();*/
-
         // Bouton favori / vedette
         fbFav = rootView.findViewById(R.id.fbFavorite);
         btVedette = rootView.findViewById(R.id.btn_vedette);

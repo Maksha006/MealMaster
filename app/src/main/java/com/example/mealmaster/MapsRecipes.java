@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -75,7 +76,7 @@ public class MapsRecipes extends AppCompatActivity {
         }
 
         TextView textViewCountry = findViewById(R.id.textView2);
-        textViewCountry.setText(tagsString); // Mettez à jour le titre avec les tags
+        textViewCountry.setText(tagsString); // ça mets à jour le titre avec les tags
     }
 
     public class SpoonacularRecipeRequest extends AsyncTask<String, Void, List<Recipe>> {
@@ -108,9 +109,10 @@ public class MapsRecipes extends AppCompatActivity {
 
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject recipeJson = jsonArray.getJSONObject(i);
+                    String id = recipeJson.getString("id");
                     String name = recipeJson.getString("title");
                     String imageURL = recipeJson.getString("image");
-                    Recipe recipe = new Recipe(name, imageURL);
+                    Recipe recipe = new Recipe(Integer.parseInt(id),name, imageURL);
                     recipes.add(recipe);
                 }
             } catch (IOException e) {
@@ -129,7 +131,7 @@ public class MapsRecipes extends AppCompatActivity {
                 recipeList.clear();
                 recipeList.addAll(recipes);
                 maps_recyclerView = findViewById(R.id.maps_recyclerView);
-                mapsRecipeAdapter = new MapsRecipeAdapter(MapsRecipes.this,recipeList,recipeClickListener);
+                mapsRecipeAdapter = new MapsRecipeAdapter(MapsRecipes.this,recipes,recipeClickListener);
                 layoutManager = new GridLayoutManager(MapsRecipes.this,2);
                 maps_recyclerView.setLayoutManager(layoutManager);
                 maps_recyclerView.setAdapter(mapsRecipeAdapter);
@@ -148,6 +150,7 @@ public class MapsRecipes extends AppCompatActivity {
         public void OnRecipeClicked(String id) {
             Intent intent = new Intent(MapsRecipes.this, RecipesDetails.class)
                     .putExtra("MapsRecipeId",id);
+            Log.d("Recipe",id);
             startActivity(intent);
         }
     };

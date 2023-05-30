@@ -1,6 +1,7 @@
 package com.example.mealmaster.Adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,7 +54,9 @@ public class SearchRecipeAdapter extends RecyclerView.Adapter<SearchRecipeAdapte
         holder.search_list_container.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                listener.OnRecipeClicked(String.valueOf(recipes.get(holder.getAdapterPosition()).getId()));
+                String recipeId = String.valueOf(recipes.get(holder.getAdapterPosition()).getId());
+                Log.d("RecipeClickListener", "Clicked recipe ID: " + recipeId);
+                listener.OnRecipeClicked(recipeId);
             }
         });
     }

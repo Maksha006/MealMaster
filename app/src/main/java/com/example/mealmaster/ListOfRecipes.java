@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -71,6 +72,7 @@ public class ListOfRecipes extends AppCompatActivity {
         public void OnRecipeClicked(String id) {
             Intent intent = new Intent(ListOfRecipes.this, RecipesDetails.class)
                     .putExtra("recipeId",id);
+            Log.e("Recipe",id);
             startActivity(intent);
         }
     };

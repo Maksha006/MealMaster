@@ -148,9 +148,10 @@ public class SearchFragment extends Fragment {
 
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject recipeJson = jsonArray.getJSONObject(i);
+                    String id = recipeJson.getString("id");
                     String name = recipeJson.getString("title");
                     String imageURL = recipeJson.getString("image");
-                    Recipe recipe = new Recipe(name, imageURL);
+                    Recipe recipe = new Recipe(Integer.parseInt(id),name, imageURL);
                     recipes.add(recipe);
                 }
             } catch (IOException e) {
