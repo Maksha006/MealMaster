@@ -58,7 +58,7 @@ public class RecipesDetails extends AppCompatActivity {
     ProgressDialog dialog;
     IngredientsAdapter ingredientsAdapter;
 
-    private RecipeDetailsResponses currentRecipe;
+    RecipeDetailsResponses currentRecipe;
     FloatingActionButton fbFavorite;
 
     InstructionsAdapter instructionsAdapter;

@@ -27,9 +27,14 @@ public class FirebaseManager {
     }
 
     public void setRecipe(String recipeId) {
-        DatabaseReference recipeRef = mDatabase.child("recipes").child(recipeId);
-        recipeRef.setValue(true);
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users")
+                    .child(user.getUid())
+                    .child("favorites")
+                    .child(recipeId);
+            userRef.setValue(true);
+        }
     }
-
 }
 
