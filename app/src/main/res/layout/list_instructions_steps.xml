@@ -20,7 +20,7 @@
                 android:textStyle="bold"
                 android:textSize="18sp"
                 android:textAlignment="center"
-                android:textColor="@color/white"
+                android:textColor="@color/beige"
                 android:padding="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
@@ -61,7 +61,7 @@
             android:layout_height="wrap_content">
             <TextView
                 android:id="@+id/tv_instructions_ingredients"
-                android:textColor="@color/white"
+                android:textColor="@color/beige"
                 android:textAlignment="textStart"
                 android:text="Equipements"
                 android:textSize="18sp"

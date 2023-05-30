@@ -91,7 +91,7 @@ public class SpoonacularManager {
 
     public void getInstructionsRecipes(InstructionsListener listener, int id){
         CallInstructionsRecipes callInstructions = retrofit.create(CallInstructionsRecipes.class);
-        Call<List<InstructionsResponse>> call = callInstructions.CallInstructionsRecipes(id, context.getString(R.string.api_key));
+        Call<List<InstructionsResponse>> call = callInstructions.callInstructionsRecipes(id, context.getString(R.string.api_key));
         call.enqueue(new Callback<List<InstructionsResponse>>() {
             @Override
             public void onResponse(Call<List<InstructionsResponse>> call, Response<List<InstructionsResponse>> response) {
@@ -128,7 +128,7 @@ public class SpoonacularManager {
 
     private interface CallInstructionsRecipes{
         @GET("recipes/{id}/analyzedInstructions")
-        Call<List<InstructionsResponse>>CallInstructionsRecipes(
+        Call<List<InstructionsResponse>>callInstructionsRecipes(
                 @Path("id") int id,
                 @Query("apiKey") String apiKey
         );

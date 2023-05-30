@@ -17,10 +17,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.mealmaster.Adapter.IngredientsAdapter;
+import com.example.mealmaster.Adapter.InstructionsAdapter;
 import com.example.mealmaster.Adapter.MapsRecipeAdapter;
+import com.example.mealmaster.Listeners.InstructionsListener;
 import com.example.mealmaster.Listeners.RecipeClickListener;
 import com.example.mealmaster.Listeners.RecipeDetailsListener;
 import com.example.mealmaster.fragment.HomeFragment;
+import com.example.mealmaster.model.InstructionsResponse;
 import com.example.mealmaster.model.Recipe;
 import com.example.mealmaster.model.RecipeDetailsResponses;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
@@ -58,6 +61,8 @@ public class RecipesDetails extends AppCompatActivity {
     private RecipeDetailsResponses currentRecipe;
     FloatingActionButton fbFavorite;
 
+    InstructionsAdapter instructionsAdapter;
+
     ImageView btnback;
 
     @Override
@@ -93,6 +98,7 @@ public class RecipesDetails extends AppCompatActivity {
             }
             manager = new SpoonacularManager(this);
             manager.getRecipeDetails(recipeDetailsListener, id);
+            manager.getInstructionsRecipes(instructionsListener,id);
             dialog = new ProgressDialog(this);
             dialog.setTitle("Loading Details...");
             dialog.show();
@@ -173,5 +179,19 @@ public class RecipesDetails extends AppCompatActivity {
         }
     };
 
+    private final InstructionsListener instructionsListener = new InstructionsListener() {
+        @Override
+        public void didRecipeFetch(List<InstructionsResponse> response, String message) {
+            recycler_dish_instructons.setHasFixedSize(true);
+            recycler_dish_instructons.setLayoutManager(new LinearLayoutManager(RecipesDetails.this,LinearLayoutManager.VERTICAL,false));
+            instructionsAdapter = new InstructionsAdapter(RecipesDetails.this,response);
+            recycler_dish_instructons.setAdapter(instructionsAdapter);
 
+        }
+
+        @Override
+        public void didError(String message) {
+            Toast.makeText(RecipesDetails.this,message,Toast.LENGTH_SHORT).show();
+        }
+    };
 }
