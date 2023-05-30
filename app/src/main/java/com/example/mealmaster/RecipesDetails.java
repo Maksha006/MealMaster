@@ -107,7 +107,7 @@ public class RecipesDetails extends AppCompatActivity {
         fbFavorite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addToFavorites();
+                createEmptyFavoritesNode();
             }
         });
 
@@ -119,6 +119,20 @@ public class RecipesDetails extends AppCompatActivity {
             }
         });
     }
+
+    public void createEmptyFavoritesNode() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        Log.d("Firebase", user.getUid());
+        System.out.println();
+        if (user != null) {
+            String uid = user.getUid();
+            DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+            DatabaseReference favoritesRef = ref.child("Users").child(uid).child("favorites");
+            // Créer un noeud "favorites" vide
+            favoritesRef.setValue(null);
+        }
+    }
+
     private void addToFavorites() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
