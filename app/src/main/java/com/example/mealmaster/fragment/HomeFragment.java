@@ -30,6 +30,7 @@ import com.example.mealmaster.R;
 import com.example.mealmaster.RandomSpoonacularResponse;
 import com.example.mealmaster.RecipesDetails;
 import com.example.mealmaster.RegisterActivity;
+import com.example.mealmaster.SearchResultsActivity;
 import com.example.mealmaster.SpoonacularManager;
 import com.example.mealmaster.Listeners.SpoonacularResponseListener;
 import com.example.mealmaster.User;
@@ -86,7 +87,7 @@ public class HomeFragment extends Fragment {
 
     private final String API_KEY = "af3b71ca41664ff586770e97ce55e795";
 
-    private static final int SEARCH_NUMBER = 10;
+    private static final int SEARCH_NUMBER = 2;
 
 
     //// graphisme (bouton,titre,images) pour le tournoi /////
@@ -105,6 +106,7 @@ public class HomeFragment extends Fragment {
     // private TournamentRecipeRequest tournamentRecipeRequest;
     ///////////////////////////////////
 
+    List<Recipe> newRecipes;
     private SliderView sliderView;
     private RandomSliderAdapter imageSliderAdapter;
     ProgressDialog dialog;
@@ -151,18 +153,30 @@ public class HomeFragment extends Fragment {
         bt_vote2 = rootView.findViewById(R.id.voteButton2);
         /////////////////////////////////////////////////////
 
-        List<Recipe> newRecipes = new ArrayList<>();
-        newRecipes.add(new Recipe("Thai Pizza", "https://spoonacular.com/recipeImages/663136-312x231.jpg", 0));
-        newRecipes.add(new Recipe("Plantain Pizza", "https://spoonacular.com/recipeImages/716300-312x231.jpg", 0));
-        newRecipes.add(new Recipe("Zucchini Pizza Boats", "https://spoonacular.com/recipeImages/665769-312x231.jpg", 0));
-        newRecipes.add(new Recipe("Pepperoni Pizza Muffins", "https://spoonacular.com/recipeImages/655698-312x231.jpg", 0));
-        newRecipes.add(new Recipe("Pittata - Pizza Frittata", "https://spoonacular.com/recipeImages/622598-312x231.jpg", 0));
-        newRecipes.add(new Recipe("Easy Cheesy Pizza Casserole", "https://spoonacular.com/recipeImages/641893-312x231.jpg", 0));
-        newRecipes.add(new Recipe("Paneer & Fig Pizza", "https://spoonacular.com/recipeImages/654523-312x231.jpg", 0));
-        newRecipes.add(new Recipe("Pesto Veggie Pizza", "https://spoonacular.com/recipeImages/655847-312x231.jpg", 0));
+        //loadRecipesFromSpoonacular();
 
-        loadRecipesFromFirebase();
+        newRecipes = new ArrayList<>();
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("recipes");
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot recipeSnapshot: dataSnapshot.getChildren()) {
+                    String name = recipeSnapshot.child("title").getValue(String.class);
+                    String imageUrl = recipeSnapshot.child("image").getValue(String.class);
+                    Long id =  recipeSnapshot.hasChild("id") ? recipeSnapshot.child("id").getValue(Long.class) : Long.valueOf(0);
+                    newRecipes.add(new Recipe(name, imageUrl, Math.toIntExact(id)));
+                }
+                // À ce stade, newRecipes contient les recettes de votre base de données Firebase
+                // Vous pouvez maintenant utiliser cette liste pour mettre à jour votre interface utilisateur
+            }
 
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Gérer les erreurs
+            }
+        });
+
+        new SpoonacularRecipeRequest().execute("pizza");
         scheduleRecipeLoading();
 
         firebaseAuth = FirebaseAuth.getInstance();
@@ -185,17 +199,19 @@ public class HomeFragment extends Fragment {
             }
         });
 
+
+
         // Bouton favori / vedette
         fbFav = rootView.findViewById(R.id.fbFavorite);
         btVedette = rootView.findViewById(R.id.btn_vedette);
 
-        List<String> recipeIds = new ArrayList<>();
+       /* List<String> recipeIds = new ArrayList<>();
         recipeIds.add("610281");
         recipeIds.add("610281");
         recipeIds.add("610281");
         recipeIds.add("610281");
 
-        setMultipleRecipesAsFeatured(recipeIds);
+        setMultipleRecipesAsFeatured(recipeIds);*/
 
         getFirebaseRecipes();
 
@@ -205,71 +221,94 @@ public class HomeFragment extends Fragment {
         return rootView;
     }
 
-    private class LoadRecipesTask extends AsyncTask<Void, Void, List<Recipe>> {
-        @Override
-        protected List<Recipe> doInBackground(Void... voids) {
-            List<Recipe> newRecipes = new ArrayList<>();
-            newRecipes.add(new Recipe("Thai Pizza", "https://spoonacular.com/recipeImages/663136-312x231.jpg", 0));
-            newRecipes.add(new Recipe("Plantain Pizza", "https://spoonacular.com/recipeImages/716300-312x231.jpg", 0));
-            newRecipes.add(new Recipe("Zucchini Pizza Boats", "https://spoonacular.com/recipeImages/665769-312x231.jpg", 0));
-            newRecipes.add(new Recipe("Pepperoni Pizza Muffins", "https://spoonacular.com/recipeImages/655698-312x231.jpg", 0));
-            newRecipes.add(new Recipe("Pittata - Pizza Frittata", "https://spoonacular.com/recipeImages/622598-312x231.jpg", 0));
-            newRecipes.add(new Recipe("Easy Cheesy Pizza Casserole", "https://spoonacular.com/recipeImages/641893-312x231.jpg", 0));
-            newRecipes.add(new Recipe("Paneer & Fig Pizza", "https://spoonacular.com/recipeImages/654523-312x231.jpg", 0));
-            newRecipes.add(new Recipe("Pesto Veggie Pizza", "https://spoonacular.com/recipeImages/655847-312x231.jpg", 0));
-            return newRecipes;
-        }
+
+    public class SpoonacularRecipeRequest extends AsyncTask<String, Void, List<Recipe>> {
 
         @Override
-        protected void onPostExecute(List<Recipe> newRecipes) {
-            onRecipesLoaded(newRecipes);
+        protected List<Recipe> doInBackground(String... searchIngredients) {
+            List<Recipe> recipes = new ArrayList<>();
+            OkHttpClient client = new OkHttpClient();
+
+            HttpUrl.Builder urlBuilder = HttpUrl.parse("https://api.spoonacular.com/recipes/complexSearch").newBuilder();
+            urlBuilder.addQueryParameter("query", "pizza");
+            urlBuilder.addQueryParameter("number", String.valueOf(SEARCH_NUMBER));
+            urlBuilder.addQueryParameter("apiKey", API_KEY);
+            String url = urlBuilder.build().toString();
+
+            Request request = new Request.Builder()
+                    .url(url)
+                    .build();
+
+            try {
+                Response response = client.newCall(request).execute();
+                String jsonResult = response.body().string();
+                JSONObject jsonObject  = new JSONObject (jsonResult);
+                JSONArray jsonArray = jsonObject.getJSONArray("results");
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject recipeJson = jsonArray.getJSONObject(i);
+                    String id = recipeJson.getString("id");
+                    String name = recipeJson.getString("title");
+                    String imageURL = recipeJson.getString("image");
+                    Recipe recipe = new Recipe(Integer.parseInt(id),name, imageURL);
+                    recipes.add(recipe);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return recipes;
+        }
+        @Override
+        protected void onPostExecute(List<Recipe> newRecipesFromAPI) {
+            super.onPostExecute(newRecipesFromAPI);
+            if (newRecipesFromAPI != null && newRecipesFromAPI.size() > 0) {
+                newRecipes.clear();
+                newRecipes.addAll(newRecipesFromAPI);
+                // Choisissez deux indices aléatoires distincts
+                int index1 = new Random().nextInt(newRecipesFromAPI.size());
+                int index2;
+                do {
+                    index2 = new Random().nextInt(newRecipesFromAPI.size());
+                } while (index1 == index2);
+
+                displayedRecipeIndex1 = index1;
+                displayedRecipeIndex2 = index2;
+
+                String nameRecipe1 = newRecipesFromAPI.get(index1).getTitle();
+                String nameRecipe2 = newRecipesFromAPI.get(index2).getTitle();
+
+                String imageUrl1 = newRecipesFromAPI.get(index1).getImage();
+                String imageUrl2 = newRecipesFromAPI.get(index2).getImage();
+
+                Log.e("ImageURL1", imageUrl1);
+                Log.e("ImageURL2", imageUrl2);
+
+                // Utilisez Picasso pour charger les images dans vos ImageView
+                Picasso.get().load(imageUrl1).into(im_recipe1);
+                Picasso.get().load(imageUrl2).into(im_recipe2);
+
+                tv_recipe1.setText(nameRecipe1);
+                tv_recipe2.setText(nameRecipe2);
+            }
         }
     }
-
-    private void loadRecipesFromFirebase() {
-        new LoadRecipesTask().execute();
-    }
-
 
     private void scheduleRecipeLoading() {
         final Handler handler = new Handler();
+        String searchIngredients = "pizza";
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 // Exécute loadRecipesFromFirebase sur un autre thread
-                new LoadRecipesTask().execute();
+                new SpoonacularRecipeRequest().execute(searchIngredients);
                 // Programmation de l'exécution du Runnable pour qu'il se répète toutes les 5 minutes
                 handler.postDelayed(this, 5 * 60 * 1000);
             }
         }, 5 * 60 * 1000); // Démarrer après 5 minutes
     }
 
-    private void onRecipesLoaded(List<Recipe> newRecipes) {
-        if (newRecipes.size() >= 2) {
-            // Choisissez deux indices aléatoires distincts
-            int index1 = new Random().nextInt(newRecipes.size());
-            int index2;
-            do {
-                index2 = new Random().nextInt(newRecipes.size());
-            } while (index1 == index2);
-
-            displayedRecipeIndex1 = index1;
-            displayedRecipeIndex2 = index2;
-
-            String nameRecipe1 = newRecipes.get(index1).getTitle();
-            String nameRecipe2 = newRecipes.get(index2).getTitle();
-
-            String imageUrl1 = newRecipes.get(index1).getImage();
-            String imageUrl2 = newRecipes.get(index2).getImage();
-
-            // Utilisez Picasso pour charger les images dans vos ImageView
-            Picasso.get().load(imageUrl1).into(im_recipe1);
-            Picasso.get().load(imageUrl2).into(im_recipe2);
-
-            tv_recipe1.setText(nameRecipe1);
-            tv_recipe2.setText(nameRecipe2);
-        }
-    }
 
     private void voteForRecipe(String recipeName) {
 
@@ -306,7 +345,6 @@ public class HomeFragment extends Fragment {
             }
         });
     }
-
     private RandomSliderAdapter.RecipeFeatureClickListener featureFavoriteListener = new RandomSliderAdapter.RecipeFeatureClickListener() {
         @Override
         public void onRecipeFeatureClick(String recipeId) {
@@ -322,17 +360,17 @@ public class HomeFragment extends Fragment {
                     }
                 }
             } else {
-                // Handle scenario where user is not logged in
+                Toast.makeText(mContext, "vous n'êtes pas connecté", Toast.LENGTH_SHORT).show();
             }
         }
     };
 
-    public void setMultipleRecipesAsFeatured(List<String> recipeIds) {
+   /* public void setMultipleRecipesAsFeatured(List<String> recipeIds) {
         for (String recipeId : recipeIds) {
             FirebaseManager firebaseManager = new FirebaseManager();
             firebaseManager.setRecipeAsFeatured(recipeId);
         }
-    }
+    }*/
 
     private SpoonacularResponseListener spoonacularResponseListener = new SpoonacularResponseListener() {
         @Override

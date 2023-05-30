@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.ImageView;
 import androidx.appcompat.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -140,6 +141,9 @@ public class SearchResultsActivity extends AppCompatActivity {
                 SearchRecipeAdapter adapter = new SearchRecipeAdapter(SearchResultsActivity.this,recipes,recipeClickListener,featureListener);
                 recyclerView.setLayoutManager(new LinearLayoutManager(SearchResultsActivity.this));
                 recyclerView.setAdapter(adapter);
+
+                FirebaseManager firebaseManager = new FirebaseManager();
+                firebaseManager.saveSearchRecipes(recipes);
             }
         }
     }
@@ -181,7 +185,7 @@ public class SearchResultsActivity extends AppCompatActivity {
                     }
                 }
             } else {
-                // Handle scenario where user is not logged in
+                Toast.makeText(SearchResultsActivity.this, "Vous n'êtes pas connécté , veuillez vous connecter", Toast.LENGTH_SHORT).show();
             }
         }
     };

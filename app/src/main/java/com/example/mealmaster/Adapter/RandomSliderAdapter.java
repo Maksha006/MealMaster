@@ -26,6 +26,7 @@ public class RandomSliderAdapter extends SliderViewAdapter<SliderAdapterVH> {
     Context context;
     List<Recipe> list;
     RecipeClickListener listener;
+    Recipe recipe;
 
     public interface RecipeFeatureClickListener {
         void onRecipeFeatureClick(String recipeId);

@@ -99,6 +99,7 @@ public class LoginActivity extends AppCompatActivity {
                         // Get the user's ID
                         FirebaseUser user = mAuth.getCurrentUser();
                         String userId = user.getUid();
+                        String userEmail = user.getEmail();
 
                         // Reference to the user in the database
                         DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child("Users").child(userId);

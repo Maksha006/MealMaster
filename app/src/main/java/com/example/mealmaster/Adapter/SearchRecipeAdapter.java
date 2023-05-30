@@ -27,6 +27,8 @@ public class SearchRecipeAdapter extends RecyclerView.Adapter<SearchRecipeAdapte
 
     List<Recipe> recipes;
 
+    Recipe recipe;
+
     RecipeClickListener listener;
 
     public interface RecipeFeatureClickListener {

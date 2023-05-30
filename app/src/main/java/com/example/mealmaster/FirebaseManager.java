@@ -7,6 +7,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class FirebaseManager {
@@ -20,6 +21,14 @@ public class FirebaseManager {
     public void saveRecipe(Recipe recipe) {
         mDatabase.child("recipes").child(String.valueOf(recipe.getId())).setValue(recipe);
     }
+
+    public void saveSearchRecipes(List<Recipe> recipes) {
+        DatabaseReference recipeRef = mDatabase.child("recipes").child("searchRecipes");
+        for (Recipe recipe : recipes) {
+            recipeRef.child(String.valueOf(recipe.getId())).setValue(recipe);
+        }
+    }
+
 
     public void setRecipeAsFeatured(String recipeId) {
         DatabaseReference recipeRef = mDatabase.child("recipes").child(recipeId).child("featured");
@@ -38,12 +47,15 @@ public class FirebaseManager {
     }
 
     public void saveUserFavoriteRecipe(String userId, String recipeId, Recipe recipe) {
-        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users")
-                .child(userId)
-                .child("favorites")
-                .child(recipeId);
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users")
+                    .child(userId)
+                    .child("favorites")
+                    .child(recipeId);
 
-        userRef.setValue(recipe);
+            userRef.setValue(recipe);
+        }
     }
 
     public void removeUserFavoriteRecipe(String userId, String recipeId) {

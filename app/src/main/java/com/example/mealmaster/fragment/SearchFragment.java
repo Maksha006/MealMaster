@@ -1,10 +1,12 @@
 package com.example.mealmaster.fragment;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,6 +26,13 @@ import com.example.mealmaster.R;
 import com.example.mealmaster.RecipesDetails;
 import com.example.mealmaster.SearchResultsActivity;
 import com.example.mealmaster.model.Recipe;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -110,7 +119,7 @@ public class SearchFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 String searchIngredients = ingredientTxt.getText().toString();
-                new SpoonacularRecipeRequest(selectedTag).execute(searchIngredients);
+                new SpoonacularRecipeRequest(getContext(), selectedTag).execute(searchIngredients);
             }
         });
         return rootView;
@@ -119,8 +128,10 @@ public class SearchFragment extends Fragment {
     public class SpoonacularRecipeRequest extends AsyncTask<String, Void, List<Recipe>> {
 
         private String selectedTag;
+        private Context context;
 
-        public SpoonacularRecipeRequest(String selectedTag) {
+        public SpoonacularRecipeRequest(Context context,String selectedTag) {
+            this.context = context;
             this.selectedTag = selectedTag;
         }
 
@@ -166,15 +177,41 @@ public class SearchFragment extends Fragment {
         protected void onPostExecute(List<Recipe> recipes) {
             super.onPostExecute(recipes);
             dialog.dismiss();
-            if (recipes != null && recipes.size() > 0){
+            if (recipes != null && recipes.size() > 0) {
+                // Initialisez les données des recettes
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                if (user != null) {
+                    initializeRecipeData(recipes, user.getUid());
+                }
+
                 // Démarrer SearchResultsActivity
-                Intent intent = new Intent(getActivity(), SearchResultsActivity.class);
+                Intent intent = new Intent(context, SearchResultsActivity.class);
                 intent.putExtra("recipes", (Serializable) recipes);
-                startActivity(intent);
-            }else {
+                context.startActivity(intent);
+            } else {
                 // Afficher un message disant qu'aucune recette n'a été trouvée
-                Toast.makeText(getActivity(), "Aucune recette trouvée", Toast.LENGTH_LONG).show();
+                Toast.makeText(context, "Aucune recette trouvée", Toast.LENGTH_LONG).show();
             }
         }
     }
+
+    private void initializeRecipeData(List<Recipe> recipes, String userId) {
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userId).child("favorites");
+        for (Recipe recipe : recipes) {
+            String recipeId = String.valueOf(recipe.getId());
+            databaseReference.child(recipeId).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        recipe.setFavorite(snapshot.getValue(Boolean.class));
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                }
+            });
+        }
+    }
+
 }

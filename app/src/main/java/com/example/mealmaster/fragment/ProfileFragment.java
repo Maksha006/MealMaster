@@ -1,7 +1,10 @@
 package com.example.mealmaster.fragment;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -70,10 +73,19 @@ public class ProfileFragment extends Fragment {
                     startActivity(intent);
                 }
             });
-
         }else {
             // L'utilisateur est connecté, afficher l'interface de profil
             rootView = inflater.inflate(R.layout.fragment_profile, container, false);
+
+            // Get the user's email from shared preferences
+            SharedPreferences sharedPreferences = getActivity().getSharedPreferences("user_info", MODE_PRIVATE);
+            String userEmail = sharedPreferences.getString("user_email", "");
+
+            // Get a reference to the TextView where you want to display the email
+            TextView emailTextView = rootView.findViewById(R.id.profile_name); // replace "emailTextView" with the actual ID of your TextView
+
+            // Set the email in the TextView
+            emailTextView.setText(userEmail);
         }
         return rootView;
     }
