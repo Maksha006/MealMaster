@@ -85,6 +85,7 @@ public class RecipesDetails extends AppCompatActivity {
             String idString = extras.getString("id");
             String searchId = extras.getString("recipeId");
             String searchListId = extras.getString("searchRecipeId");
+            String tournoiId = extras.getString("tournoiId");
             if (mapIdString != null) {
                 id = Integer.parseInt(mapIdString);
             }else if (idString != null) {
@@ -93,7 +94,10 @@ public class RecipesDetails extends AppCompatActivity {
                 id =  Integer.parseInt(searchId);
             }else if (searchListId != null) {
                 id =  Integer.parseInt(searchListId);
-            }else {
+            }else if (tournoiId != null){
+                id = Integer.parseInt(tournoiId);
+            }
+            else {
                 Toast.makeText(this, "aucun id n'est présent", Toast.LENGTH_SHORT).show();
             }
             manager = new SpoonacularManager(this);

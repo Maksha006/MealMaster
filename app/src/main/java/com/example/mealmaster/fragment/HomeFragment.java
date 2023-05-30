@@ -116,8 +116,13 @@ public class HomeFragment extends Fragment {
     private List<Recipe> featuredRecipeList = new ArrayList<>();
     private List<Recipe> RecipeList = new ArrayList<>();
 
+    RecipeClickListener listener;
+
     private int displayedRecipeIndex1;
     private int displayedRecipeIndex2;
+
+    private String recipe1Id;
+    private String recipe2Id;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -199,19 +204,25 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        im_recipe1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openRecipeDetails(recipe1Id);
+            }
+        });
+
+        im_recipe2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openRecipeDetails(recipe2Id);
+            }
+        });
+
 
 
         // Bouton favori / vedette
         fbFav = rootView.findViewById(R.id.fbFavorite);
         btVedette = rootView.findViewById(R.id.btn_vedette);
-
-       /* List<String> recipeIds = new ArrayList<>();
-        recipeIds.add("610281");
-        recipeIds.add("610281");
-        recipeIds.add("610281");
-        recipeIds.add("610281");
-
-        setMultipleRecipesAsFeatured(recipeIds);*/
 
         getFirebaseRecipes();
 
@@ -219,6 +230,13 @@ public class HomeFragment extends Fragment {
         databaseReference =db.getReference();
 
         return rootView;
+    }
+
+    private void openRecipeDetails(String id) {
+        Intent intent = new Intent(getContext(),RecipesDetails.class)
+                .putExtra("tournoiId",id);
+        Log.e("tournoiId","tournoiId"+id);
+        startActivity(intent);
     }
 
 
@@ -282,8 +300,8 @@ public class HomeFragment extends Fragment {
                 String imageUrl1 = newRecipesFromAPI.get(index1).getImage();
                 String imageUrl2 = newRecipesFromAPI.get(index2).getImage();
 
-                Log.e("ImageURL1", imageUrl1);
-                Log.e("ImageURL2", imageUrl2);
+                recipe1Id = String.valueOf(newRecipes.get(index1).getId());
+                recipe2Id = String.valueOf(newRecipes.get(index2).getId());;
 
                 // Utilisez Picasso pour charger les images dans vos ImageView
                 Picasso.get().load(imageUrl1).into(im_recipe1);
