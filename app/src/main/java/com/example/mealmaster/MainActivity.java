@@ -3,6 +3,7 @@ package com.example.mealmaster;
 import static com.example.mealmaster.AlarmReceiver.CHANNEL_ID;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -68,11 +69,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawerLayout = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         mAuth = FirebaseAuth.getInstance();
-        //Toolbar toolbar = findViewById(R.id.toolbar);
 
-        //setSupportActionBar(toolbar);
 
-        //Hide or show items
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_black); // Remplacez ic_menu par votre propre icône
+        }
 
         createNotificationChannel();
 
