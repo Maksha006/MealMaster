@@ -7,9 +7,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,12 +20,23 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.mealmaster.Adapter.FavoriteItemsAdapter;
 import com.example.mealmaster.AuthActivity;
 import com.example.mealmaster.LoginActivity;
 import com.example.mealmaster.R;
 import com.example.mealmaster.RegisterActivity;
+import com.example.mealmaster.model.Recipe;
+import com.example.mealmaster.model.RecipeAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProfileFragment extends Fragment {
 
@@ -63,7 +76,6 @@ public class ProfileFragment extends Fragment {
                     startActivity(intent);
                 }
             });
-
             Button RegisterButton = rootView.findViewById(R.id.buttonRegister);
             RegisterButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -89,5 +101,4 @@ public class ProfileFragment extends Fragment {
         }
         return rootView;
     }
-
 }

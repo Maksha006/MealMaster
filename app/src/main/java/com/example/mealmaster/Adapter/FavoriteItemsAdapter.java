@@ -23,13 +23,15 @@ import java.util.List;
 
 public class FavoriteItemsAdapter extends RecyclerView.Adapter<FavoriteItemsAdapter.ViewHolder>{
 
-    private ArrayList<Recipe> favoriteRecipes;
+    private List<Recipe> favoriteRecipes;
     android.content.Context context;
 
 
 
 
-    public FavoriteItemsAdapter(android.content.Context context,ArrayList<Recipe> favoriteRecipes) {
+    public FavoriteItemsAdapter(android.content.Context context,List<Recipe> favoriteRecipes) {
+
+        this.context = context;
         this.favoriteRecipes = favoriteRecipes;
     }
 
@@ -37,7 +39,7 @@ public class FavoriteItemsAdapter extends RecyclerView.Adapter<FavoriteItemsAdap
     @Override
     public FavoriteItemsAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_search_recipe, parent, false);
+                .inflate(R.layout.items_favoris, parent, false);
         return new ViewHolder(view);
     }
 
@@ -67,8 +69,8 @@ public class FavoriteItemsAdapter extends RecyclerView.Adapter<FavoriteItemsAdap
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             favoris_list = itemView.findViewById(R.id.favorite_list);
-            favoris_img = itemView.findViewById(R.id.favorite_title);
-            textView_favoris = itemView.findViewById(R.id.image_favorite);
+            favoris_img = itemView.findViewById(R.id.image_favorite);
+            textView_favoris = itemView.findViewById(R.id.favorite_title);
             fvrtBt = itemView.findViewById(R.id.btn_like);
         }
     }

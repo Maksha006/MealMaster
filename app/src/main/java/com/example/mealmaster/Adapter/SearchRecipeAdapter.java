@@ -78,9 +78,9 @@ public class SearchRecipeAdapter extends RecyclerView.Adapter<SearchRecipeAdapte
         holder.btn_vedette.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String recipeId = String.valueOf(recipes.get(holder.getAdapterPosition()).getId());
+                Recipe recipe = recipes.get(holder.getAdapterPosition());
                 FirebaseManager firebaseManager = new FirebaseManager();
-                firebaseManager.setRecipe(recipeId);
+                firebaseManager.setRecipe(recipe);
 
                 recipe.setFavorite(!recipe.isFavorite());
                 firebaseManager.saveRecipe(recipe);

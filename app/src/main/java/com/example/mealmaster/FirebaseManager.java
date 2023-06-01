@@ -35,14 +35,14 @@ public class FirebaseManager {
         recipeRef.setValue(true);
     }
 
-    public void setRecipe(String recipeId) {
+    public void setRecipe(Recipe recipe) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users")
                     .child(user.getUid())
                     .child("favorites")
-                    .child(recipeId);
-            userRef.setValue(true);
+                    .child(String.valueOf(recipe.getId()));
+            userRef.setValue(recipe);
         }
     }
 
@@ -58,13 +58,16 @@ public class FirebaseManager {
         }
     }
 
-    public void removeUserFavoriteRecipe(String userId, String recipeId) {
-        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users")
-                .child(userId)
-                .child("favorites")
-                .child(recipeId);
+    public void removeUserFavoriteRecipe(String userId, String recipeId, Recipe recipe) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users")
+                    .child(userId)
+                    .child("favorites")
+                    .child(recipeId);
 
-        userRef.removeValue();
+            userRef.removeValue();
+        }
     }
 }
 

@@ -55,18 +55,15 @@ public class RandomSliderAdapter extends SliderViewAdapter<SliderAdapterVH> {
 
         Recipe recipe = list.get(position);
 
-        viewHolder.DishName_title.setText(list.get(position).getTitle());
+        viewHolder.DishName_title.setText(recipe.getTitle());
         viewHolder.DishName_title.setSelected(true);
-        Picasso.get().load(list.get(position).getImage()).into(viewHolder.image_food);
+        Picasso.get().load(recipe.getImage()).into(viewHolder.image_food);
 
         viewHolder.random_list_container.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String recipeId = String.valueOf(recipe.getId());
-                listener.OnRecipeClicked(recipeId);
-
                 FirebaseManager firebaseManager = new FirebaseManager();
-                firebaseManager.setRecipe(recipeId);
+                firebaseManager.setRecipe(recipe);
 
                 // Mettre à jour l'attribut isFavorite de la recette
                 recipe.setFavorite(!recipe.isFavorite());
@@ -78,6 +75,10 @@ public class RandomSliderAdapter extends SliderViewAdapter<SliderAdapterVH> {
                 } else {
                     viewHolder.btn_like.setImageResource(R.drawable.ic_favoritewhite);
                 }
+
+                // Mettre à jour le listener avec l'ID de la recette
+                String recipeId = String.valueOf(recipe.getId());
+                listener.OnRecipeClicked(recipeId);
             }
         });
     }

@@ -203,7 +203,10 @@ public class SearchFragment extends Fragment {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if (snapshot.exists()) {
-                        recipe.setFavorite(snapshot.getValue(Boolean.class));
+                        Recipe firebaseRecipe = snapshot.getValue(Recipe.class);
+                        if (firebaseRecipe != null) {
+                            recipe.setFavorite(firebaseRecipe.isFavorite());
+                        }
                     }
                 }
 
@@ -213,5 +216,4 @@ public class SearchFragment extends Fragment {
             });
         }
     }
-
 }

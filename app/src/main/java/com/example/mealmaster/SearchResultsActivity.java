@@ -176,7 +176,7 @@ public class SearchResultsActivity extends AppCompatActivity {
                     if (String.valueOf(recipe.getId()).equals(recipeId)) {
                         if (recipe.isFavorite()) {
                             recipe.setFavorite(false);
-                            firebaseManager.removeUserFavoriteRecipe(user.getUid(), recipeId);
+                            firebaseManager.removeUserFavoriteRecipe(user.getUid(), recipeId, recipe);
                         } else {
                             recipe.setFavorite(true);
                             firebaseManager.saveUserFavoriteRecipe(user.getUid(), recipeId, recipe);
